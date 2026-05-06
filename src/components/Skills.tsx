@@ -112,7 +112,7 @@ const Skills = () => {
         </motion.div>
 
         {/* Skills Grid - Premium Cinematic Animation */}
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           <motion.div
             key={activeCategory}
             initial="hidden"
@@ -147,10 +147,11 @@ const Skills = () => {
                     transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] }
                   }
                 }}
-                className="relative group flex flex-col items-center justify-center gap-4 p-5 glass rounded-2xl cursor-default border border-slate-800/50 hover:border-indigo-500/50 transition-colors transition-shadow duration-300 h-full w-full hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] will-change-transform"
+                className="relative group flex flex-col items-center justify-center gap-4 p-5 glass rounded-2xl cursor-default border border-slate-800/50 md:hover:border-indigo-500/50 transition-colors transition-shadow duration-300 h-full w-full md:hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] will-change-transform"
+                style={{ transform: 'translateZ(0)' }}
                 whileHover={{ y: -2, scale: 1.01 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-500 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 md:group-hover:opacity-100 rounded-2xl transition-opacity duration-500 pointer-events-none" />
                 <div className="relative w-14 h-14 flex items-center justify-center rounded-xl bg-slate-900/80 group-hover:bg-slate-800/80 transition-colors duration-500 p-2.5 shadow-inner">
                   <img
                     src={skill.icon}

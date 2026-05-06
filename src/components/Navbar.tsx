@@ -126,10 +126,10 @@ const Navbar = () => {
           initial={false}
           animate={isMenuOpen ? 'open' : 'closed'}
           variants={{
-            open: { opacity: 1, height: 'auto', marginTop: '1rem' },
-            closed: { opacity: 0, height: 0, marginTop: '0rem' },
+            open: { opacity: 1, height: 'auto', y: 0, display: 'block' },
+            closed: { opacity: 0, height: 0, y: -10, transitionEnd: { display: 'none' } },
           }}
-          className="lg:hidden overflow-hidden"
+          className="lg:hidden absolute top-[calc(100%+0.5rem)] left-4 right-4 glass rounded-2xl shadow-2xl z-50 border border-slate-800/80 backdrop-blur-2xl overflow-hidden"
         >
           <div className="py-6 space-y-2 border-t border-slate-800/50">
             {navItems.map((item) => (

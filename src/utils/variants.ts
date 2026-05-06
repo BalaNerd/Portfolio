@@ -20,7 +20,7 @@ export const itemVariants: Variants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.6,
+      duration: 0.4,
       ease: smoothEase,
     },
   },
@@ -32,7 +32,7 @@ export const slideInVariants: Variants = {
     x: 0,
     opacity: 1,
     transition: {
-      duration: 0.6,
+      duration: 0.4,
       ease: smoothEase,
     },
   },

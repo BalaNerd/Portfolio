@@ -47,9 +47,9 @@ const Hero = () => {
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Animated Background */}
       <div className="absolute inset-0 z-0">
-        <div className="floating-blob w-[500px] h-[500px] bg-blue-600 top-[-10%] left-[-10%] blur-[120px]" />
-        <div className="floating-blob w-[500px] h-[500px] bg-purple-600 bottom-[-10%] right-[-10%] blur-[120px]" style={{ animationDelay: '2s' }} />
-        <div className="floating-blob w-[400px] h-[400px] bg-indigo-500 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blur-[120px]" style={{ animationDelay: '4s' }} />
+        <div className="floating-blob w-[500px] h-[500px] bg-blue-600 top-[-10%] left-[-10%] blur-[60px] md:blur-[120px]" />
+        <div className="floating-blob w-[500px] h-[500px] bg-purple-600 bottom-[-10%] right-[-10%] blur-[60px] md:blur-[120px]" style={{ animationDelay: '2s' }} />
+        <div className="floating-blob w-[400px] h-[400px] bg-indigo-500 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blur-[60px] md:blur-[120px]" style={{ animationDelay: '4s' }} />
       </div>
 
       {/* Content */}
@@ -68,7 +68,7 @@ const Hero = () => {
 
         <motion.h1
           variants={itemVariants}
-          className="text-6xl md:text-8xl lg:text-9xl font-bold mb-6 tracking-tight"
+          className="text-[clamp(3rem,8vw,8rem)] leading-tight font-bold mb-6 tracking-tight"
         >
           <span className="block text-white opacity-90">Hi, I'm</span>
           <span className="gradient-text drop-shadow-2xl">S Bala Raju</span>
@@ -76,7 +76,7 @@ const Hero = () => {
 
         <motion.div
           variants={itemVariants}
-          className="text-2xl md:text-4xl lg:text-5xl font-bold mb-10 h-12"
+          className="text-[clamp(1.5rem,4vw,3rem)] font-bold mb-10 h-12"
         >
           <span className="text-slate-300">I'm a </span>
           <span className="gradient-text">{text}</span>
@@ -94,13 +94,13 @@ const Hero = () => {
 
         <motion.div
           variants={itemVariants}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 w-full max-w-3xl mx-auto"
         >
           <motion.a
             href="https://drive.google.com/file/d/1qNZHPkj3VvLY_dGBbZPz-wRfxEyIIMc2/view?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-white transition-all duration-300 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 bg-[length:200%_auto] hover:bg-[center_right_1rem] rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] group"
+            className="w-full sm:w-auto relative inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-white transition-all duration-300 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 bg-[length:200%_auto] hover:bg-[center_right_1rem] rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] group"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -110,7 +110,7 @@ const Hero = () => {
 
           <motion.a
             href="#projects"
-            className="inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-white transition-all duration-300 glass rounded-xl border border-white/10 hover:border-indigo-500/50 hover:bg-white/5 group"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-white transition-all duration-300 glass rounded-xl border border-white/10 hover:border-indigo-500/50 hover:bg-white/5 group"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -118,7 +118,7 @@ const Hero = () => {
             <ExternalLink size={20} className="ml-2 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
           </motion.a>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 w-full sm:w-auto justify-center mt-2 sm:mt-0">
             <motion.a
               href="https://github.com/BalaNerd"
               target="_blank"

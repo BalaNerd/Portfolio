@@ -29,14 +29,22 @@ const BackgroundMotion = () => {
       });
     };
 
-    setParticles(generateParticles(75)); // Dense enough to feel alive, light enough for performance
+    const handleResize = () => {
+      const count = window.innerWidth < 768 ? 15 : 75; // Less particles on mobile
+      setParticles(generateParticles(count));
+    };
+
+    handleResize(); // Initial generation
+    
+    // Optional: could add resize listener, but generating once on load is safer for performance
   }, []);
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
       {/* Deep Background Gradient Globs - Highly subtle so they don't wash out UI */}
       <motion.div 
-        className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-indigo-600/10 blur-[120px] will-change-transform"
+        className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-indigo-600/10 blur-[60px] md:blur-[120px] will-change-transform"
+        style={{ transform: 'translateZ(0)' }}
         animate={{
           x: [0, 50, 0],
           y: [0, 30, 0],
@@ -44,7 +52,8 @@ const BackgroundMotion = () => {
         transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div 
-        className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-purple-600/10 blur-[120px] will-change-transform"
+        className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-purple-600/10 blur-[60px] md:blur-[120px] will-change-transform"
+        style={{ transform: 'translateZ(0)' }}
         animate={{
           x: [0, -50, 0],
           y: [0, -30, 0],
@@ -74,14 +83,14 @@ const BackgroundMotion = () => {
       {particles.map((particle) => (
         <motion.div
           key={`particle-${particle.id}`}
-          className={`absolute rounded-full ${particle.color} will-change-transform`}
+          className={`absolute rounded-full ${particle.color}`}
           style={{
             left: `${particle.x}%`,
             top: `${particle.y}%`,
             width: `${particle.size}px`,
             height: `${particle.size}px`,
-            // Crisp, premium outer glow matching the particle color
-            boxShadow: `0 0 ${particle.size * 2}px currentColor`,
+            willChange: 'transform, opacity',
+            transform: 'translateZ(0)',
           }}
           initial={{
             x: particle.startX,

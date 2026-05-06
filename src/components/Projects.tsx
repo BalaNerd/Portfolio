@@ -133,7 +133,7 @@ const Projects = () => {
           viewport={{ once: true, amount: 0.1 }}
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence>
           {filteredProjects.map((project) => (
             <motion.div
               layout
@@ -142,11 +142,12 @@ const Projects = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
-              className="project-card group flex flex-col glass rounded-2xl border border-slate-800/60 hover:border-indigo-500/50 hover:bg-slate-900/40 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500"
+              className="project-card group flex flex-col glass rounded-2xl border border-slate-800/60 md:hover:border-indigo-500/50 md:hover:bg-slate-900/40 md:hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500 will-change-transform"
+              style={{ transform: 'translateZ(0)' }}
             >
               {/* Project Content */}
               <div className="p-8 flex flex-col flex-grow relative overflow-hidden rounded-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 
                 <div className="mb-6 flex-grow relative z-10">
                   <div className="flex justify-between items-start mb-4">

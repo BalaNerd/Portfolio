@@ -250,7 +250,7 @@ const Contact = () => {
             className="lg:col-span-3"
           >
             <motion.div variants={itemVariants} className="glass p-10 rounded-[2.5rem] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 blur-3xl rounded-full -mr-16 -mt-16" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 blur-2xl md:blur-3xl rounded-full -mr-16 -mt-16" />
               
               <h3 className="text-3xl font-bold text-white mb-8">Send a Quick Message</h3>
               
