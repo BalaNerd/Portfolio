@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, MapPin, Building, Wifi } from 'lucide-react';
+import { Briefcase, Building, Wifi } from 'lucide-react';
 import { containerVariants, slideInVariants } from '../utils/variants';
 
 const Experience = () => {
