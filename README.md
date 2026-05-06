@@ -151,7 +151,7 @@ Feel free to reach out if you have any questions or suggestions!
 
 - **Portfolio**: [Live Demo](#)
 - **GitHub**: [BalaNerd](https://github.com/BalaNerd)
-- **Email**: bala.nerd@example.com
+- **Email**: balaraju1805@gmail.com
 
 ---
 
