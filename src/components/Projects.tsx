@@ -25,8 +25,8 @@ const Projects = () => {
       description: 'Sophisticated financial management platform with interactive data visualization. Personalised expense tracking, budget forecasting, and real-time category analysis.',
       tech: ['Next.js', 'TypeScript', 'Supabase', 'Recharts'],
       github: 'https://github.com/BalaNerd/spendwise',
-      live: null,
-      category: 'data',
+      live: 'https://spendwise-two-kappa.vercel.app',
+      category: 'web',
       image: 'spendwise',
       featured: true,
       stats: 'Beta'

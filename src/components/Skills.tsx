@@ -112,41 +112,19 @@ const Skills = () => {
         </motion.div>
 
         {/* Skills Grid - Premium Cinematic Animation */}
-        <AnimatePresence>
-          <motion.div
-            key={activeCategory}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: { staggerChildren: 0.02 }
-              },
-              exit: {
-                opacity: 0,
-                transition: { staggerChildren: 0.01, duration: 0.2 }
-              }
-            }}
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full"
-          >
+        <motion.div
+          layout
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full"
+        >
+          <AnimatePresence mode="popLayout">
             {filteredSkills.map((skill) => (
               <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
                 key={skill.name}
-                variants={{
-                  hidden: { opacity: 0, y: 10 },
-                  visible: { 
-                    opacity: 1, 
-                    y: 0, 
-                    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
-                  },
-                  exit: { 
-                    opacity: 0, 
-                    y: -10, 
-                    transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] }
-                  }
-                }}
                 className="relative group flex flex-col items-center justify-center gap-4 p-5 glass rounded-2xl cursor-default border border-slate-800/50 md:hover:border-indigo-500/50 transition-colors transition-shadow duration-300 h-full w-full md:hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] will-change-transform"
                 style={{ transform: 'translateZ(0)' }}
                 whileHover={{ y: -2, scale: 1.01 }}
@@ -176,8 +154,8 @@ const Skills = () => {
                 </span>
               </motion.div>
             ))}
-          </motion.div>
-        </AnimatePresence>
+          </AnimatePresence>
+        </motion.div>
 
         {/* Learning Note */}
         <motion.div
