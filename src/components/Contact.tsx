@@ -1,87 +1,86 @@
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
-import { motion } from 'framer-motion';
-import { Mail, MapPin, Send, GitBranch as GitHub, LucideIcon } from 'lucide-react';
-import { FaLinkedin } from 'react-icons/fa';
-import { IconType } from 'react-icons';
-import { containerVariants, itemVariants } from '../utils/variants';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, MapPin, Send, CheckCircle2, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from './ui/Icons';
+import VariableProximity from './ui/VariableProximity';
+import MagneticButton from './ui/MagneticButton';
+import BlurReveal from './ui/BlurReveal';
 
-type ContactInfo = {
-  icon: LucideIcon | IconType;
-  label: string;
-  value: string;
-  href: string;
-  ariaLabel: string;
-};
+const contactInfo = [
+  {
+    icon: Mail,
+    label: 'Email',
+    value: 'balaraju1805@gmail.com',
+    href: 'mailto:balaraju1805@gmail.com',
+    ariaLabel: 'Send Email',
+    color: '#4f46e5',
+    bgColor: 'rgba(79, 70, 229, 0.08)',
+  },
+  {
+    icon: LinkedinIcon,
+    label: 'LinkedIn',
+    value: 'S Bala Raju',
+    href: 'https://www.linkedin.com/in/s-balaraju/',
+    ariaLabel: 'Visit LinkedIn Profile',
+    color: '#0284c7',
+    bgColor: 'rgba(2, 132, 199, 0.08)',
+  },
+  {
+    icon: MapPin,
+    label: 'Location',
+    value: 'Chennai, India',
+    href: 'https://maps.app.goo.gl/xw1CNdUpqq44SCLF9',
+    ariaLabel: 'View Location on Map',
+    color: '#7c3aed',
+    bgColor: 'rgba(124, 58, 237, 0.08)',
+  },
+];
 
-type SocialLink = {
-  icon: LucideIcon | IconType;
-  label: string;
-  href: string;
-  color: string;
-  ariaLabel: string;
-};
+const socialLinks = [
+  { icon: GithubIcon,   label: 'GitHub',   href: 'https://github.com/BalaNerd',                color: '#0e0f1a' },
+  { icon: LinkedinIcon, label: 'LinkedIn', href: 'https://www.linkedin.com/in/s-balaraju/',    color: '#0284c7' },
+  { icon: Mail,         label: 'Email',    href: 'mailto:balaraju1805@gmail.com',               color: '#4f46e5' },
+];
 
-const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
+const Contact: React.FC = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // EmailJS logic — fully preserved from original implementation
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
     try {
-      // Attempt to load from env, fallback to known keys if the environment loader fails
-      const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_oqk6p0f';
-      const contactTemplateId = process.env.REACT_APP_EMAILJS_CONTACT_TEMPLATE_ID || 'template_i3eciti';
-      const autoReplyTemplateId = process.env.REACT_APP_EMAILJS_AUTO_REPLY_TEMPLATE_ID || 'template_29kz28s';
-      const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'EaMDKrvlpD7yCRkQN';
+      const serviceId            = process.env.REACT_APP_EMAILJS_SERVICE_ID            || 'service_oqk6p0f';
+      const contactTemplateId    = process.env.REACT_APP_EMAILJS_CONTACT_TEMPLATE_ID    || 'template_i3eciti';
+      const autoReplyTemplateId  = process.env.REACT_APP_EMAILJS_AUTO_REPLY_TEMPLATE_ID || 'template_29kz28s';
+      const publicKey            = process.env.REACT_APP_EMAILJS_PUBLIC_KEY             || 'EaMDKrvlpD7yCRkQN';
 
       if (!process.env.REACT_APP_EMAILJS_SERVICE_ID) {
-        console.warn("Warning: REACT_APP_EMAILJS_SERVICE_ID is undefined in process.env. Using fallback keys.");
+        console.warn('Warning: REACT_APP_EMAILJS_SERVICE_ID is undefined in process.env. Using fallback keys.');
       }
-
       if (!serviceId || !contactTemplateId || !autoReplyTemplateId || !publicKey) {
-        console.error("EmailJS keys are totally missing.");
-        throw new Error("Configuration error");
+        console.error('EmailJS keys are totally missing.');
+        throw new Error('Configuration error');
       }
 
       const templateParams = {
-        from_name: formData.name,
+        from_name:  formData.name,
         from_email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
+        subject:    formData.subject,
+        message:    formData.message,
       };
 
-      // FIRST: Send the notification to the portfolio owner
-      await emailjs.send(
-        serviceId,
-        contactTemplateId,
-        templateParams,
-        publicKey
-      );
-
-      // SECOND: Send the auto-reply confirmation to the user
-      await emailjs.send(
-        serviceId,
-        autoReplyTemplateId,
-        templateParams,
-        publicKey
-      );
+      await emailjs.send(serviceId, contactTemplateId, templateParams, publicKey);
+      await emailjs.send(serviceId, autoReplyTemplateId, templateParams, publicKey);
 
       setSubmitStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
@@ -90,281 +89,267 @@ const Contact = () => {
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
-      // Reset status after 5 seconds
       setTimeout(() => setSubmitStatus('idle'), 5000);
     }
   };
 
-  const contactInfo: ContactInfo[] = [
-    {
-      icon: Mail,
-      label: 'Email',
-      value: 'balaraju1805@gmail.com',
-      href: 'mailto:balaraju1805@gmail.com',
-      ariaLabel: 'Send Email'
-    },
-    {
-      icon: FaLinkedin,
-      label: 'LinkedIn',
-      value: 'S Bala Raju',
-      href: 'https://www.linkedin.com/in/s-balaraju/',
-      ariaLabel: 'Visit LinkedIn Profile'
-    },
-    {
-      icon: MapPin,
-      label: 'Location',
-      value: 'Chennai, India',
-      href: 'https://maps.app.goo.gl/xw1CNdUpqq44SCLF9',
-      ariaLabel: 'View Location on Map'
-    },
-  ];
-
-  const socialLinks: SocialLink[] = [
-    {
-      icon: GitHub,
-      label: 'GitHub',
-      href: 'https://github.com/BalaNerd',
-      color: 'hover:text-white',
-      ariaLabel: 'Visit GitHub Profile'
-    },
-    {
-      icon: FaLinkedin,
-      label: 'LinkedIn',
-      href: 'https://www.linkedin.com/in/s-balaraju/',
-      color: 'hover:text-[#0a66c2]',
-      ariaLabel: 'Visit LinkedIn Profile'
-    }
-  ];
-
   return (
-    <section id="contact" className="py-24 px-4 bg-slate-950/30">
-      <div className="max-w-6xl mx-auto">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="text-center mb-20"
-        >
-          <motion.div
-            variants={itemVariants}
-            className="inline-block px-4 py-1.5 mb-4 glass rounded-full"
-          >
-            <span className="text-sm font-medium text-blue-400">Contact</span>
-          </motion.div>
-          
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold mb-6"
-          >
-            <span className="gradient-text">Let's Connect</span>
-          </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-slate-400 text-lg max-w-2xl mx-auto font-medium"
-          >
-            Ready to bring your next big idea to life? Reach out and let's talk.
-          </motion.p>
-        </motion.div>
+    <section id="contact" className="relative py-28 md:py-36 overflow-hidden">
+      <div className="section-divider mb-16" />
+      <div className="container-main pt-0">
 
-        <div className="grid lg:grid-cols-5 gap-12">
-          {/* Contact Info - 2 Columns */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            className="lg:col-span-2 space-y-8"
+        {/* Section label */}
+        <BlurReveal delay={0} className="mb-6">
+          <span className="section-label text-indigo-600">05 — Contact</span>
+        </BlurReveal>
+
+        {/* Kinetic heading with Variable Proximity */}
+        <div className="mb-20">
+          <h2
+            className="overflow-visible"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: 'clamp(2.4rem, 7vw, 5.75rem)',
+              lineHeight: 0.95,
+              letterSpacing: '-0.035em',
+            }}
           >
-            <div className="space-y-6">
-              {contactInfo.map((info, index) => {
-                const Icon = info.icon as React.ElementType;
-                const isLink = info.href !== '#';
-                const Wrapper = isLink ? motion.a : motion.div;
-                
-                return (
-                  <Wrapper
-                    key={index}
-                    href={isLink ? info.href : undefined}
-                    target={isLink ? "_blank" : undefined}
-                    rel={isLink ? "noopener noreferrer" : undefined}
-                    aria-label={info.ariaLabel}
-                    className="flex items-center gap-6 p-6 glass rounded-2xl hover:border-indigo-500/30 hover:bg-slate-900/50 hover:shadow-[0_0_20px_rgba(99,102,241,0.1)] transition-all duration-300 group cursor-pointer"
-                    whileHover={{ x: 5, scale: 1.01 }}
-                  >
-                    <div className="w-14 h-14 bg-indigo-600/10 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors duration-300 shadow-inner">
-                      <Icon size={24} className="text-indigo-400 group-hover:text-indigo-300 transition-colors" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{info.label}</p>
-                      <p className="text-white font-bold text-lg group-hover:text-indigo-300 transition-colors duration-300 break-all">
-                        {info.value}
-                      </p>
-                    </div>
-                  </Wrapper>
-                );
-              })}
+            <div className="block leading-none">
+              <VariableProximity
+                label="LET'S BUILD"
+                className="text-text-primary"
+                initialDelay={0.15}
+                radius={200}
+                maxShiftX={10}
+                maxShiftY={12}
+                maxScale={0.1}
+              />
             </div>
+            <div className="block leading-none mt-1 sm:mt-2">
+              <VariableProximity
+                label="SOMETHING"
+                className="gradient-text"
+                gradient={true}
+                initialDelay={0.3}
+                radius={200}
+                maxShiftX={10}
+                maxShiftY={12}
+                maxScale={0.1}
+              />
+            </div>
+            <div className="block leading-none mt-1 sm:mt-2">
+              <VariableProximity
+                label="GREAT."
+                className="text-text-primary"
+                initialDelay={0.45}
+                radius={200}
+                maxShiftX={10}
+                maxShiftY={12}
+                maxScale={0.1}
+              />
+            </div>
+          </h2>
+        </div>
 
-            {/* Availability Badge */}
-            <motion.div 
-              variants={itemVariants}
-              className="p-8 glass rounded-[2rem] border-dashed border-indigo-500/20"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-slate-200 font-bold tracking-tight">OPEN FOR COLLABORATION</span>
-              </div>
-              <p className="text-slate-400 leading-relaxed font-medium">
-                I'm currently seeking opportunities to apply my skills in high-impact environments. 
-                Whether it's a freelance project or a full-time role, I'm just a message away.
+        {/* Two column layout */}
+        <div className="grid md:grid-cols-2 gap-12 md:gap-16">
+
+          {/* Left — contact info */}
+          <BlurReveal delay={0.2} direction="left">
+            <div className="space-y-8">
+              <p className="text-text-secondary leading-relaxed font-normal" style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.75 }}>
+                Have a project in mind? Want to collaborate on something interesting?
+                Or just want to say hello — my inbox is always open.
               </p>
-              
-              <div className="mt-8 flex gap-4">
-                {socialLinks.map((social, index) => {
-                  const SocialIcon = social.icon as React.ElementType;
+
+              {/* Contact cards */}
+              <div className="space-y-3">
+                {contactInfo.map((item) => {
+                  const Icon = item.icon;
                   return (
                     <motion.a
-                      key={index}
-                      href={social.href}
-                      target="_blank"
+                      key={item.label}
+                      href={item.href}
+                      target={item.href.startsWith('mailto') || item.href.startsWith('https://maps') ? '_blank' : undefined}
                       rel="noopener noreferrer"
-                      aria-label={social.ariaLabel}
-                      className={`p-4 glass rounded-[1.25rem] text-slate-400 ${social.color} hover:border-indigo-500/40 hover:bg-indigo-500/10 transition-all duration-300 shadow-lg`}
-                      whileHover={{ y: -5, scale: 1.1 }}
+                      aria-label={item.ariaLabel}
+                      className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200/80 bg-white/85 shadow-sm group transition-all"
+                      whileHover={{
+                        borderColor: `${item.color}50`,
+                        backgroundColor: '#ffffff',
+                        x: 4,
+                      }}
+                      transition={{ duration: 0.2 }}
                     >
-                      <SocialIcon size={28} />
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border"
+                        style={{ background: item.bgColor, borderColor: `${item.color}25` }}
+                      >
+                        <Icon size={16} style={{ color: item.color }} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-text-muted section-label mb-0.5 font-bold">{item.label}</p>
+                        <p className="text-text-primary text-sm font-semibold" style={{ fontFamily: 'var(--font-body)' }}>{item.value}</p>
+                      </div>
+                      <ArrowUpRight size={15} className="ml-auto text-text-muted group-hover:text-indigo-600 transition-colors" />
                     </motion.a>
                   );
                 })}
               </div>
-            </motion.div>
-          </motion.div>
 
-          {/* Contact Form - 3 Columns */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            className="lg:col-span-3"
-          >
-            <motion.div variants={itemVariants} className="glass p-10 rounded-[2.5rem] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 blur-2xl md:blur-3xl rounded-full -mr-16 -mt-16" />
-              
-              <h3 className="text-3xl font-bold text-white mb-8">Send a Quick Message</h3>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
-                      Full Name
-                    </label>
+              {/* Social links */}
+              <div>
+                <p className="section-label mb-4 text-indigo-600">Connect</p>
+                <div className="flex gap-3">
+                  {socialLinks.map((link) => {
+                    const Icon = link.icon;
+                    return (
+                      <MagneticButton
+                        key={link.label}
+                        as="a"
+                        href={link.href}
+                        target={link.href.startsWith('mailto') ? undefined : '_blank'}
+                        rel="noopener noreferrer"
+                        aria-label={link.label}
+                        className="w-11 h-11 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-text-secondary hover:text-indigo-600 hover:border-indigo-300 transition-colors shadow-sm"
+                      >
+                        <Icon size={17} />
+                      </MagneticButton>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </BlurReveal>
+
+          {/* Right — contact form */}
+          <BlurReveal delay={0.3} direction="right">
+            <div className="p-7 rounded-2xl border border-slate-200/80 bg-white/85 shadow-sm">
+              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="contact-name" className="form-label">Name</label>
                     <input
+                      id="contact-name"
                       type="text"
-                      id="name"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
+                      placeholder="Your name"
                       required
-                      className="w-full px-6 py-4 bg-slate-900/50 border border-slate-800 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/5 transition-all duration-300"
-                      placeholder="Jane Doe"
+                      className="form-input"
+                      autoComplete="name"
                     />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
-                      Email Address
-                    </label>
+                  <div>
+                    <label htmlFor="contact-email" className="form-label">Email</label>
                     <input
+                      id="contact-email"
                       type="email"
-                      id="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
+                      placeholder="your@email.com"
                       required
-                      className="w-full px-6 py-4 bg-slate-900/50 border border-slate-800 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/5 transition-all duration-300"
-                      placeholder="jane@example.com"
+                      className="form-input"
+                      autoComplete="email"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label htmlFor="subject" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
-                    Subject
-                  </label>
+                <div>
+                  <label htmlFor="contact-subject" className="form-label">Subject</label>
                   <input
+                    id="contact-subject"
                     type="text"
-                    id="subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
+                    placeholder="What's this about?"
                     required
-                    className="w-full px-6 py-4 bg-slate-900/50 border border-slate-800 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/5 transition-all duration-300"
-                    placeholder="Project Inquiry"
+                    className="form-input"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label htmlFor="message" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
-                    Your Message
-                  </label>
+                <div>
+                  <label htmlFor="contact-message" className="form-label">Message</label>
                   <textarea
-                    id="message"
+                    id="contact-message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
+                    placeholder="Tell me about your project or idea..."
                     required
-                    rows={4}
-                    className="w-full px-6 py-4 bg-slate-900/50 border border-slate-800 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/5 transition-all duration-300 resize-none"
-                    placeholder="Tell me about your amazing project..."
+                    rows={5}
+                    className="form-input resize-none"
                   />
                 </div>
 
-                <motion.button
+                {/* Submit button */}
+                <MagneticButton
                   type="submit"
                   disabled={isSubmitting}
-                  className="relative w-full h-16 inline-flex items-center justify-center px-8 py-3.5 text-lg font-bold text-white transition-all duration-300 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 bg-[length:200%_auto] hover:bg-[center_right_1rem] rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] group disabled:opacity-50 disabled:cursor-not-allowed"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="btn-primary w-full justify-center"
+                  id="contact-submit"
+                  aria-label="Send message"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3" />
-                      <span>Sending...</span>
-                    </>
-                  ) : submitStatus === 'success' ? (
-                    <span>Message Sent</span>
-                  ) : (
-                    <>
-                      <span>Send Message</span>
-                      <Send size={20} className="ml-3 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    </>
-                  )}
-                </motion.button>
+                  <AnimatePresence mode="wait" initial={false}>
+                    {isSubmitting ? (
+                      <motion.span
+                        key="loading"
+                        className="flex items-center gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <motion.span
+                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full inline-block"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 0.7, repeat: Infinity, ease: 'linear' }}
+                        />
+                        Sending...
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="idle"
+                        className="flex items-center gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <Send size={15} /> Send Message
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </MagneticButton>
 
-                {submitStatus === 'success' && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl text-green-400 font-bold text-center"
-                  >
-                    Message sent successfully! I'll be in touch soon.
-                  </motion.div>
-                )}
-                
-                {submitStatus === 'error' && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 font-bold text-center"
-                  >
-                    Failed to send message. Please try again.
-                  </motion.div>
-                )}
+                {/* Status messages */}
+                <AnimatePresence>
+                  {submitStatus !== 'idle' && (
+                    <motion.div
+                      className="flex items-center gap-2.5 p-4 rounded-xl text-sm font-medium"
+                      style={{
+                        background: submitStatus === 'success' ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+                        border: `1px solid ${submitStatus === 'success' ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                        color: submitStatus === 'success' ? '#059669' : '#dc2626',
+                      }}
+                      initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      {submitStatus === 'success' ? (
+                        <><CheckCircle2 size={16} /> Message sent! I&apos;ll get back to you soon.</>
+                      ) : (
+                        <><AlertCircle size={16} /> Something went wrong. Please try again or email me directly.</>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </form>
-            </motion.div>
-          </motion.div>
+            </div>
+          </BlurReveal>
         </div>
       </div>
     </section>

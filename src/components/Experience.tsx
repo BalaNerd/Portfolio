@@ -1,157 +1,254 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Briefcase, Building, Wifi } from 'lucide-react';
-import { containerVariants, slideInVariants } from '../utils/variants';
+import { motion, useInView } from 'framer-motion';
+import { Briefcase, MapPin, Calendar, GraduationCap } from 'lucide-react';
+import BlurReveal from './ui/BlurReveal';
 
-const Experience = () => {
-  const experiences = [
-    {
-      title: 'Data Scientist and Analyst',
-      company: 'Zidio Development',
-      type: 'Internship',
-      location: 'Remote',
-      period: 'Jul 2025 – Sep 2025',
-      duration: '3 months',
-      description: [
-        'Gained hands-on experience in data cleaning, analysis, and visualization using Python.',
-        'Participated in structured training sessions on machine learning techniques.',
-        'Developed understanding of the end-to-end data science workflow including model building.',
-      ],
-      skills: ['Python', 'Pandas', 'NumPy', 'Data Visualization', 'Machine Learning', 'SQL'],
-      color: 'from-indigo-500/20 to-purple-500/20',
-      accent: 'indigo',
-    },
-  ];
+export interface TimelineItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  company?: string;
+  type?: string;
+  location?: string;
+  period: string;
+  duration?: string;
+  description: string[];
+  skills: string[];
+  accentColor: string;
+  icon: React.ElementType;
+}
+
+const experiences: TimelineItem[] = [
+  {
+    id: '01',
+    title: 'Data Scientist & Analyst Intern',
+    company: 'Zidio Development',
+    type: 'Internship',
+    location: 'Remote',
+    period: 'Jul 2025 – Sep 2025',
+    duration: '3 months',
+    description: [
+      'Performed data cleaning, analysis, and visualization using Python on real-world datasets.',
+      'Applied machine learning concepts through structured training and practical tasks.',
+      'Gained hands-on experience in the data science workflow, including preprocessing, model building, and evaluation.',
+      'Worked with real-world datasets to extract actionable insights and improve decision-making.',
+    ],
+    skills: ['Python', 'Pandas', 'NumPy', 'Data Cleaning', 'Data Visualization', 'Machine Learning'],
+    accentColor: '#4f46e5',
+    icon: Briefcase,
+  },
+];
+
+const education: TimelineItem[] = [
+  {
+    id: '02',
+    title: 'Bachelor of Technology in Computer Science',
+    subtitle: 'Specialization in Big Data Analytics',
+    company: 'SRM Institute of Science and Technology',
+    type: 'B.Tech Degree',
+    location: 'Ramapuram, Tamil Nadu, India',
+    period: 'Aug 2023 – Jun 2027',
+    duration: 'CGPA: 8.61',
+    description: [
+      'B.Tech curriculum focused on Big Data Analytics, machine learning, and scalable systems.',
+      'Comprehensive study of data structures, algorithms, database management, and full-stack web engineering.',
+      'Hands-on projects building data-intensive applications and high-performance digital systems.',
+    ],
+    skills: ['Python', 'Data Structures', 'Algorithms', 'Big Data Analytics', 'Machine Learning', 'DBMS', 'MySQL'],
+    accentColor: '#0284c7',
+    icon: GraduationCap,
+  },
+];
+
+const hackathons: TimelineItem[] = [
+  {
+    id: '03',
+    title: 'Hackathons & Achievements',
+    subtitle: 'Competitions & ML Projects',
+    company: 'VIT Chennai & Competitions',
+    type: 'Recognition',
+    location: 'Chennai, India',
+    period: '2024 – 2025',
+    description: [
+      'Hack the Horizon 2.0 – VIT Chennai: Built CypherGuard, a cybersecurity dashboard using Flask & ML under 24-hour constraints.',
+      'NumeroHack 2025: Developed a voice-based sentiment analysis system using ML, MFCC & Fourier Transform.',
+      'Mathematical Modeling Competition: Designed a traffic flow simulation using Cellular Automata for real-world modeling.',
+    ],
+    skills: ['Flask', 'Machine Learning', 'MFCC', 'Fourier Transform', 'Cybersecurity', 'Cellular Automata'],
+    accentColor: '#7c3aed',
+    icon: Briefcase,
+  },
+];
+
+const TimelineEntry: React.FC<{ item: TimelineItem; delay?: number }> = ({ item, delay = 0 }) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const Icon = item.icon;
 
   return (
-    <section id="experience" className="py-24 px-4 bg-[#020617]/50 relative">
-      <div className="max-w-5xl mx-auto relative z-10">
+    <motion.div
+      ref={ref}
+      className="relative grid md:grid-cols-12 gap-0"
+      initial={{ opacity: 0 }}
+      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+      transition={{ duration: 0.5, delay }}
+    >
+      {/* Left — index/meta */}
+      <div className="md:col-span-4 flex md:justify-end md:pr-12 pb-6 md:pb-0">
+        <div className="flex flex-row md:flex-col items-start md:items-end gap-4 md:gap-3 pt-1">
+          {/* Index number */}
+          <span
+            className="font-display font-800"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: '3.2rem',
+              lineHeight: 1,
+              color: `${item.accentColor}30`,
+              letterSpacing: '-0.04em',
+              userSelect: 'none',
+            }}
+          >
+            {item.id}
+          </span>
+          <div className="flex flex-col md:items-end gap-1 mt-1">
+            <div className="flex items-center gap-1.5 text-text-muted font-medium" style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem' }}>
+              <Calendar size={13} className="text-slate-400" />
+              <span>{item.period}</span>
+            </div>
+            {item.location && (
+              <div className="flex items-center gap-1.5 text-text-muted font-medium" style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem' }}>
+                <MapPin size={13} className="text-slate-400" />
+                <span>{item.location}</span>
+              </div>
+            )}
+            {item.duration && (
+              <span className="tech-pill text-[10px] mt-1">{item.duration}</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Center — animated line + icon */}
+      <div className="hidden md:flex md:col-span-1 flex-col items-center">
+        {/* Icon bubble */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="text-center mb-24"
+          className="relative z-10 w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 bg-white border shadow-sm"
+          style={{ borderColor: `${item.accentColor}35` }}
+          initial={{ scale: 0 }}
+          animate={isInView ? { scale: 1 } : { scale: 0 }}
+          transition={{ duration: 0.35, delay: delay + 0.1, type: 'spring', stiffness: 300 }}
         >
-          <motion.div
-            variants={slideInVariants}
-            className="inline-block px-4 py-1.5 mb-4 glass rounded-full"
-          >
-            <span className="text-sm font-medium text-blue-400">Career History</span>
-          </motion.div>
-
-          <motion.h2
-            variants={slideInVariants}
-            className="text-4xl md:text-5xl font-bold mb-6"
-          >
-            <span className="gradient-text">Professional Journey</span>
-          </motion.h2>
-          <motion.p
-            variants={slideInVariants}
-            className="text-slate-400 text-lg max-w-2xl mx-auto"
-          >
-            A timeline of my professional growth and technical contributions.
-          </motion.p>
+          <Icon size={17} style={{ color: item.accentColor }} />
         </motion.div>
+        {/* Vertical line */}
+        <motion.div
+          className="w-px flex-1 mt-3 min-h-[3rem]"
+          style={{ background: `linear-gradient(to bottom, ${item.accentColor}40, transparent)`, transformOrigin: 'top' }}
+          initial={{ scaleY: 0 }}
+          animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
+          transition={{ duration: 0.6, delay: delay + 0.2, ease: [0.19, 1, 0.22, 1] }}
+        />
+      </div>
 
-        <div className="relative">
-          {/* Timeline Vertical Line */}
-          <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-[2px] bg-gradient-to-b from-indigo-500/70 via-purple-500/40 to-transparent md:-translate-x-1/2" />
-
-          {experiences.map((exp, index) => (
-            <motion.div
-              key={index}
-              variants={slideInVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              className="relative flex items-start gap-8 ml-14 md:ml-0 md:justify-center"
+      {/* Right — content card */}
+      <div className="md:col-span-7 md:pl-10 pb-16">
+        <div className="p-7 rounded-2xl border border-slate-200/80 bg-white/85 shadow-sm">
+          {/* Type badge */}
+          {item.type && (
+            <span
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border mb-4 section-label"
+              style={{ borderColor: `${item.accentColor}35`, color: item.accentColor, background: `${item.accentColor}08` }}
             >
-              {/* Timeline Dot */}
-              <div className="absolute left-[-2.125rem] md:left-1/2 md:-translate-x-1/2 top-8 w-5 h-5 bg-indigo-500 rounded-full border-4 border-[#030712] shadow-[0_0_16px_rgba(79,70,229,0.6)] z-20" />
+              {item.type}
+            </span>
+          )}
 
-              {/* Experience Card */}
-              <motion.div
-                className="w-full md:w-[56%] glass p-8 rounded-3xl border border-slate-800/60 hover:border-indigo-500/40 transition-all duration-500 group relative overflow-hidden"
-                whileHover={{ y: -4 }}
+          {/* Title */}
+          <h3
+            className="text-text-primary mb-1 font-bold"
+            style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(1.25rem, 2.5vw, 1.65rem)', letterSpacing: '-0.015em' }}
+          >
+            {item.title}
+          </h3>
+
+          {/* Company / Subtitle */}
+          <p
+            className="mb-5 font-semibold"
+            style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', color: item.accentColor }}
+          >
+            {item.company}
+            {item.subtitle && (
+              <span className="text-text-muted font-normal ml-2">— {item.subtitle}</span>
+            )}
+          </p>
+
+          {/* Description */}
+          <ul className="space-y-2.5 mb-6">
+            {item.description.map((point, i) => (
+              <motion.li
+                key={i}
+                className="flex gap-3 text-text-secondary text-sm leading-relaxed font-normal"
+                initial={{ opacity: 0, x: -12 }}
+                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -12 }}
+                transition={{ duration: 0.35, delay: delay + 0.15 + i * 0.07 }}
+                style={{ fontFamily: 'var(--font-body)' }}
               >
-                {/* Background accent */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${exp.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+                <span className="mt-2 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.accentColor }} />
+                {point}
+              </motion.li>
+            ))}
+          </ul>
 
-                {/* Header */}
-                <div className="relative z-10 mb-6">
-                  {/* Type Badge */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 text-xs font-bold uppercase tracking-widest bg-indigo-500/15 text-indigo-400 rounded-full border border-indigo-500/20">
-                      {exp.type}
-                    </span>
-                    <span className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold uppercase tracking-widest bg-green-500/10 text-green-400 rounded-full border border-green-500/20">
-                      <Wifi size={10} />
-                      {exp.location}
-                    </span>
-                  </div>
+          {/* Skills */}
+          <div className="flex flex-wrap gap-2">
+            {item.skills.map((skill) => (
+              <span key={skill} className="tech-pill">{skill}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
-                  {/* Period */}
-                  <span className="text-indigo-400 font-bold text-sm tracking-widest uppercase">
-                    {exp.period} · <span className="text-slate-500">{exp.duration}</span>
-                  </span>
+const Experience: React.FC = () => {
+  return (
+    <section id="experience" className="relative py-28 md:py-36 overflow-hidden">
+      <div className="section-divider mb-16" />
+      <div className="container-main pt-0">
 
-                  {/* Role */}
-                  <h3 className="text-2xl font-bold text-white mt-2 mb-1 group-hover:text-indigo-300 transition-colors duration-300">
-                    {exp.title}
-                  </h3>
+        {/* Section header */}
+        <BlurReveal delay={0} className="mb-20">
+          <span className="section-label block mb-4 text-indigo-600">04 — Journey</span>
+          <h2 className="section-title">
+            Experience &amp; <span className="gradient-text">Education</span>
+          </h2>
+          <p className="text-text-secondary mt-4 max-w-xl font-normal" style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.7 }}>
+            A timeline of professional growth, technical contribution, and academic foundation.
+          </p>
+        </BlurReveal>
 
-                  {/* Company */}
-                  <div className="flex items-center gap-2 text-slate-300 font-semibold">
-                    <Building size={16} className="text-slate-500" />
-                    <span>{exp.company}</span>
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="relative z-10 w-full h-[1px] bg-slate-800/60 mb-6" />
-
-                {/* Responsibilities */}
-                <ul className="relative z-10 space-y-3 mb-8">
-                  {exp.description.map((desc, i) => (
-                    <li key={i} className="text-slate-400 text-sm flex items-start gap-3 group-hover:text-slate-300 transition-colors duration-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 flex-shrink-0" />
-                      {desc}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Skills */}
-                <div className="relative z-10 flex flex-wrap gap-2">
-                  {exp.skills.map((skill, i) => (
-                    <span
-                      key={i}
-                      className="text-[10px] font-bold uppercase tracking-wider px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            </motion.div>
+        {/* Experience entries */}
+        <div>
+          {experiences.map((exp, i) => (
+            <TimelineEntry key={exp.id} item={exp} delay={0.1 + i * 0.1} />
           ))}
         </div>
 
-        {/* CTA */}
-        <motion.div
-          variants={slideInVariants}
-          initial="hidden"
-          whileInView="visible"
-          className="text-center mt-24"
-        >
-          <motion.a
-            href="#contact"
-            className="glass px-10 py-4 rounded-2xl font-bold text-white hover:bg-indigo-600/20 transition-all duration-300 inline-flex items-center gap-3 group"
-          >
-            <Briefcase size={20} className="group-hover:rotate-12 transition-transform" />
-            Discuss a Project
-          </motion.a>
-        </motion.div>
+        {/* Education entries */}
+        <div>
+          {education.map((edu, i) => (
+            <TimelineEntry key={edu.id} item={edu} delay={0.2 + i * 0.1} />
+          ))}
+        </div>
+
+        {/* Hackathons entries */}
+        <div>
+          {hackathons.map((hack, i) => (
+            <TimelineEntry key={hack.id} item={hack} delay={0.3 + i * 0.1} />
+          ))}
+        </div>
       </div>
     </section>
   );

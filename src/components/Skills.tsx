@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { containerVariants, itemVariants } from '../utils/variants';
+import BlurReveal from './ui/BlurReveal';
 
 interface Skill {
   name: string;
@@ -9,171 +9,167 @@ interface Skill {
   category: string;
 }
 
-const Skills = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
+const skills: Skill[] = [
+  // Frontend
+  { name: 'React.js',     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',           color: '#0284c7', category: 'frontend' },
+  { name: 'Next.js',      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',         color: '#0e0f1a', category: 'frontend' },
+  { name: 'TypeScript',   icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', color: '#3178C6', category: 'frontend' },
+  { name: 'Tailwind CSS', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',color: '#06B6D4', category: 'frontend' },
+  { name: 'JavaScript',   icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg', color: '#D97706', category: 'frontend' },
+  { name: 'HTML5',        icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',           color: '#E34F26', category: 'frontend' },
+  { name: 'CSS3',         icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',             color: '#1572B6', category: 'frontend' },
+  // Backend & APIs
+  { name: 'Python',     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',        color: '#3776AB', category: 'backend' },
+  { name: 'FastAPI',    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg',      color: '#009688', category: 'backend' },
+  { name: 'Flask',      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg',          color: '#0e0f1a', category: 'backend' },
+  { name: 'Node.js',    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',        color: '#16a34a', category: 'backend' },
+  { name: 'Supabase',   icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg',    color: '#059669', category: 'backend' },
+  { name: 'PostgreSQL', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',color: '#336791', category: 'backend' },
+  { name: 'MySQL',      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',          color: '#4479A1', category: 'backend' },
+  // Data & Cloud
+  { name: 'AWS',        icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg', color: '#FF9900', category: 'data' },
+  { name: 'Pandas',     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg',        color: '#7c3aed', category: 'data' },
+  { name: 'NumPy',      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg',          color: '#0284c7', category: 'data' },
+  { name: 'C',          icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg',                  color: '#A8B9CC', category: 'data' },
+  { name: 'Java',       icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg',            color: '#EA2D2E', category: 'data' },
+  // Tools
+  { name: 'Git',    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg',    color: '#ea580c', category: 'tools' },
+  { name: 'GitHub', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg', color: '#0e0f1a', category: 'tools' },
+  { name: 'VS Code',icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg',  color: '#0284c7', category: 'tools' },
+  { name: 'Vercel', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg',  color: '#0e0f1a', category: 'tools' },
+];
 
-  const skills: Skill[] = [
-    // Frontend
-    { name: 'React.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', color: '#61DAFB', category: 'frontend' },
-    { name: 'Next.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg', color: '#FFFFFF', category: 'frontend' },
-    { name: 'TypeScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', color: '#3178C6', category: 'frontend' },
-    { name: 'Tailwind CSS', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg', color: '#06B6D4', category: 'frontend' },
-    { name: 'JavaScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg', color: '#F7DF1E', category: 'frontend' },
-    { name: 'HTML5', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg', color: '#E34F26', category: 'frontend' },
-    { name: 'CSS3', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg', color: '#1572B6', category: 'frontend' },
-    // Backend
-    { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg', color: '#339933', category: 'backend' },
-    { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg', color: '#3776AB', category: 'backend' },
-    { name: 'Django', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg', color: '#092E20', category: 'backend' },
-    { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg', color: '#47A248', category: 'backend' },
-    { name: 'Supabase', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg', color: '#3ECF8E', category: 'backend' },
-    // Data Science
-    { name: 'Pandas', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg', color: '#150458', category: 'data' },
-    { name: 'NumPy', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg', color: '#013243', category: 'data' },
-    { name: 'Jupyter', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jupyter/jupyter-original.svg', color: '#F37626', category: 'data' },
-    { name: 'scikit-learn', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Scikit_learn_logo_small.svg', color: '#F7931E', category: 'data' },
-    { name: 'MySQL', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg', color: '#4479A1', category: 'data' },
-    // Tools
-    { name: 'Git', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg', color: '#F05032', category: 'tools' },
-    { name: 'GitHub', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg', color: '#FFFFFF', category: 'tools' },
-    { name: 'VS Code', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg', color: '#007ACC', category: 'tools' },
-    { name: 'Docker', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', color: '#2496ED', category: 'tools' },
-    { name: 'Linux', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg', color: '#FCC624', category: 'tools' },
-    { name: 'Figma', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg', color: '#F24E1E', category: 'tools' },
-  ];
+const categories = [
+  { id: 'frontend', label: 'Frontend',  number: '01', color: '#4f46e5' },
+  { id: 'backend',  label: 'Backend',   number: '02', color: '#0284c7' },
+  { id: 'data',     label: 'Data',      number: '03', color: '#7c3aed' },
+  { id: 'tools',    label: 'Tools',     number: '04', color: '#d97706' },
+];
 
-  const categories = [
-    { id: 'all', name: 'All Skills' },
-    { id: 'frontend', name: 'Frontend' },
-    { id: 'backend', name: 'Backend' },
-    { id: 'data', name: 'Data Science' },
-    { id: 'tools', name: 'Tools' },
-  ];
+const SkillCard: React.FC<{ skill: Skill; index: number; catColor: string }> = ({ skill, index, catColor }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
-  const filteredSkills = activeCategory === 'all'
-    ? skills
-    : skills.filter(s => s.category === activeCategory);
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = ((e.clientY - rect.top)  / rect.height - 0.5) * 10;
+    const y = ((e.clientX - rect.left) / rect.width  - 0.5) * -10;
+    setTilt({ x, y });
+  };
 
   return (
-    <section id="skills" className="py-24 px-4 relative">
-      <div className="max-w-6xl mx-auto relative z-10">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="text-center mb-16"
-        >
+    <motion.div
+      ref={ref}
+      className="relative flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-200/80 bg-white/80 cursor-pointer group shadow-sm"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => { setIsHovered(false); setTilt({ x: 0, y: 0 }); }}
+      onMouseMove={handleMouseMove}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.4, delay: index * 0.03, ease: [0.25, 0.46, 0.45, 0.94] }}
+      animate={{
+        rotateX: tilt.x,
+        rotateY: tilt.y,
+        scale: isHovered ? 1.05 : 1,
+        borderColor: isHovered ? `${catColor}50` : 'rgba(15, 23, 42, 0.08)',
+        boxShadow: isHovered ? `0 10px 24px -4px ${catColor}20, 0 2px 6px rgba(0,0,0,0.03)` : '0 1px 3px rgba(0,0,0,0.02)',
+      }}
+      style={{ transformStyle: 'preserve-3d', transition: 'box-shadow 0.25s, border-color 0.25s' }}
+    >
+      <motion.img
+        src={skill.icon}
+        alt={skill.name}
+        className="w-9 h-9 object-contain"
+        animate={{ scale: isHovered ? 1.1 : 1, y: isHovered ? -2 : 0 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        loading="lazy"
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = 'none';
+        }}
+      />
+      <span
+        className="text-xs font-semibold text-center text-text-secondary group-hover:text-text-primary transition-colors duration-200"
+        style={{ fontFamily: 'var(--font-body)', letterSpacing: '0.01em' }}
+      >
+        {skill.name}
+      </span>
+
+      {/* Glow dot */}
+      <AnimatePresence>
+        {isHovered && (
           <motion.div
-            variants={itemVariants}
-            className="inline-block px-4 py-1.5 mb-4 glass rounded-full"
-          >
-            <span className="text-sm font-medium text-purple-400">Expertise</span>
-          </motion.div>
+            className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full"
+            style={{ background: catColor }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          />
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold mb-6"
-          >
-            <span className="gradient-text">Technical Arsenal</span>
-          </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-slate-400 text-lg max-w-2xl mx-auto"
-          >
-            A comprehensive overview of my technical proficiency and toolset.
-          </motion.p>
-        </motion.div>
+const Skills: React.FC = () => {
+  return (
+    <section id="skills" className="relative py-28 md:py-36 overflow-hidden">
+      <div className="section-divider mb-16" />
+      <div className="container-main pt-0">
 
-        {/* Category Filter */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="flex flex-wrap justify-center gap-3 mb-12"
-        >
-          {categories.map((category) => (
-            <motion.button
-              key={category.id}
-              variants={itemVariants}
-              onClick={() => setActiveCategory(category.id)}
-              className={`px-6 py-2.5 rounded-xl font-bold transition-all duration-300 border ${
-                activeCategory === category.id
-                  ? 'bg-indigo-600 border-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.3)]'
-                  : 'glass border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-              }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {category.name}
-            </motion.button>
-          ))}
-        </motion.div>
-
-        {/* Skills Grid - Premium Cinematic Animation */}
-        <motion.div
-          layout
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredSkills.map((skill) => (
-              <motion.div
-                layout
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
-                key={skill.name}
-                className="relative group flex flex-col items-center justify-center gap-4 p-5 glass rounded-2xl cursor-default border border-slate-800/50 md:hover:border-indigo-500/50 transition-colors transition-shadow duration-300 h-full w-full md:hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] will-change-transform"
-                style={{ transform: 'translateZ(0)' }}
-                whileHover={{ y: -2, scale: 1.01 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 md:group-hover:opacity-100 rounded-2xl transition-opacity duration-500 pointer-events-none" />
-                <div className="relative w-14 h-14 flex items-center justify-center rounded-xl bg-slate-900/80 group-hover:bg-slate-800/80 transition-colors duration-500 p-2.5 shadow-inner">
-                  <img
-                    src={skill.icon}
-                    alt={skill.name}
-                    className="w-full h-full object-contain drop-shadow-md"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        const fallback = document.createElement('span');
-                        fallback.className = 'text-indigo-400 font-bold text-lg';
-                        fallback.textContent = skill.name.charAt(0);
-                        parent.appendChild(fallback);
-                      }
-                    }}
-                  />
-                </div>
-                <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors duration-500 text-center leading-tight">
-                  {skill.name}
-                </span>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* Learning Note */}
-        <motion.div
-          variants={itemVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mt-16 p-8 glass rounded-[2rem] text-center border border-dashed border-indigo-500/20"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-slate-300 font-bold tracking-wide">CURRENTLY EXPLORING</span>
-          </div>
-          <p className="text-slate-400 text-lg">
-            Post-graduate level <span className="text-white font-bold">Deep Learning architectures</span> and{' '}
-            <span className="text-white font-bold">Event-driven Microservices</span> with Kafka.
+        {/* Section header */}
+        <BlurReveal delay={0} className="mb-16">
+          <span className="section-label block mb-4 text-indigo-600">03 — Skills</span>
+          <h2 className="section-title">
+            Tools &amp; <span className="gradient-text">Technologies</span>
+          </h2>
+          <p className="text-text-secondary mt-4 max-w-xl font-normal" style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.7 }}>
+            A curated toolkit built through real projects. Each technology chosen for a specific purpose.
           </p>
-        </motion.div>
+        </BlurReveal>
+
+        {/* Category rows */}
+        <div className="space-y-12">
+          {categories.map((cat) => {
+            const catSkills = skills.filter((s) => s.category === cat.id);
+            return (
+              <div key={cat.id}>
+                {/* Category label */}
+                <motion.div
+                  className="flex items-center gap-4 mb-6"
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                >
+                  <span
+                    className="font-mono text-xs font-bold"
+                    style={{ fontFamily: 'var(--font-mono)', color: cat.color, letterSpacing: '0.12em' }}
+                  >
+                    {cat.number}
+                  </span>
+                  <span
+                    className="font-display font-bold text-sm text-text-primary uppercase tracking-wider"
+                    style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}
+                  >
+                    {cat.label}
+                  </span>
+                  <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${cat.color}35, transparent)` }} />
+                </motion.div>
+
+                {/* Skills grid */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3.5">
+                  {catSkills.map((skill, i) => (
+                    <SkillCard key={skill.name} skill={skill} index={i} catColor={cat.color} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

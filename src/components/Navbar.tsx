@@ -1,177 +1,271 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Menu, X, GitBranch as GitHub, Mail, LucideIcon } from 'lucide-react';
-import { FaLinkedin } from 'react-icons/fa';
-import { IconType } from 'react-icons';
-import { useScroll } from '../hooks/useScroll';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
+import { Menu, X, ArrowUpRight } from 'lucide-react';
+import MagneticButton from './ui/MagneticButton';
 
-type SocialLink = {
-  icon: LucideIcon | IconType;
-  href: string;
+interface NavItem {
+  id: string;
   label: string;
-  ariaLabel: string;
-};
+}
 
-const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+const navItems: NavItem[] = [
+  { id: 'about',      label: 'About'      },
+  { id: 'projects',   label: 'Work'       },
+  { id: 'skills',     label: 'Skills'     },
+  { id: 'experience', label: 'Experience' },
+  { id: 'contact',    label: 'Contact'    },
+];
+
+const Navbar: React.FC = () => {
+  const [isOpen,         setIsOpen]         = useState(false);
+  const [activeSection,  setActiveSection]  = useState('home');
+  const [isScrolled,     setIsScrolled]     = useState(false);
+  const [hoveredItem,    setHoveredItem]    = useState<string | null>(null);
+
   const { scrollY } = useScroll();
-  const [isScrolled, setIsScrolled] = useState(false);
 
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    setIsScrolled(latest > 30);
+  });
+
+  // IntersectionObserver — track active section
   useEffect(() => {
-    setIsScrolled(scrollY > 20);
-  }, [scrollY]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.3, rootMargin: '-80px 0px -40% 0px' }
+    );
 
-  const navItems = [
-    { name: 'Home', href: '#home' },
-    { name: 'About', href: '#about' },
-    { name: 'Skills', href: '#skills' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Experience', href: '#experience' },
-    { name: 'Contact', href: '#contact' },
-  ];
+    const sections = document.querySelectorAll('section[id]');
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, []);
 
-  const socialLinks: SocialLink[] = [
-    { icon: GitHub as LucideIcon, href: 'https://github.com/BalaNerd', label: 'GitHub', ariaLabel: 'Visit GitHub Profile' },
-    { icon: FaLinkedin, href: 'https://www.linkedin.com/in/s-balaraju/', label: 'LinkedIn', ariaLabel: 'Visit LinkedIn Profile' },
-    { icon: Mail, href: 'mailto:balaraju1805@gmail.com', label: 'Email', ariaLabel: 'Send Email' },
-  ];
+  const scrollToSection = useCallback((id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY - 72;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+    setIsOpen(false);
+  }, []);
+
+  // Lock body scroll when mobile menu open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 pt-4`}
-    >
-      <div className={`max-w-7xl mx-auto rounded-[2rem] transition-all duration-500 ${
-        isScrolled
-          ? 'glass shadow-2xl py-2 px-6'
-          : 'bg-transparent py-4 px-6'
-      }`}>
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <motion.a
-            href="#home"
-            className="flex items-center gap-2"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center border border-white/10 shadow-lg">
-              <span className="text-xl font-black text-white">B</span>
-            </div>
-            <span className="text-xl font-bold text-white tracking-tighter hidden sm:block">S Bala Raju</span>
-          </motion.a>
+    <>
+      <motion.header
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      >
+        <div
+          className="transition-all duration-300"
+          style={{
+            background: isScrolled
+              ? 'rgba(251, 251, 254, 0.92)'
+              : 'rgba(251, 251, 254, 0.5)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            borderBottom: isScrolled
+              ? '1px solid rgba(15, 23, 42, 0.08)'
+              : '1px solid transparent',
+            boxShadow: isScrolled ? '0 4px 20px -4px rgba(15, 23, 42, 0.04)' : 'none',
+          }}
+        >
+          <div className="container-main">
+            <div className="flex items-center justify-between h-[72px]">
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:block">
-            <div className="flex items-center space-x-1">
-              {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="px-5 py-2 text-sm font-bold text-slate-400 hover:text-white transition-all rounded-xl hover:bg-white/5"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Side Tools */}
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center space-x-3">
-              {socialLinks.map((link) => {
-                const Icon = link.icon as React.ElementType;
-                return (
-                  <motion.a
-                    key={link.label}
-                    href={link.href}
-                    aria-label={link.ariaLabel}
-                    className="p-2.5 glass rounded-xl text-slate-400 hover:text-white transition-all duration-300 border-slate-800/50"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Icon size={18} />
-                  </motion.a>
-                );
-              })}
-            </div>
-
-            <motion.a
-              href="#contact"
-              className="hidden md:block px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)]"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Let's Talk
-            </motion.a>
-
-            {/* Mobile menu button */}
-            <div className="lg:hidden">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="w-10 h-10 glass border-slate-800/50 flex items-center justify-center rounded-xl text-slate-400 hover:text-white transition-all"
-                aria-label="Toggle menu"
+              {/* Brand Wordmark */}
+              <motion.button
+                onClick={() => scrollToSection('home')}
+                className="font-display font-800 tracking-widest uppercase text-text-primary hover:text-indigo-600 transition-colors cursor-pointer bg-transparent border-none"
+                whileHover={{ scale: 1.02 }}
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '0.14em', fontSize: '0.85rem' }}
               >
-                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                S. BALA RAJU
+              </motion.button>
+
+              {/* Desktop Nav: Generous horizontal spacing & distinct Resume separation */}
+              <nav className="hidden md:flex items-center gap-7 lg:gap-9" aria-label="Main navigation">
+                <div className="flex items-center gap-6 lg:gap-8">
+                  {navItems.map((item) => {
+                    const isActive = activeSection === item.id;
+                    return (
+                      <div
+                        key={item.id}
+                        className="relative"
+                        onMouseEnter={() => setHoveredItem(item.id)}
+                        onMouseLeave={() => setHoveredItem(null)}
+                      >
+                        <button
+                          onClick={() => scrollToSection(item.id)}
+                          className="nav-link px-2 py-1 block cursor-pointer bg-transparent border-none text-xs lg:text-sm font-semibold tracking-wider transition-colors"
+                          style={{
+                            color: isActive ? '#0e0f1a' : '#475569',
+                            fontFamily: 'var(--font-display)',
+                          }}
+                          aria-current={isActive ? 'page' : undefined}
+                        >
+                          {item.label}
+                        </button>
+
+                        {/* Active / hover indicator */}
+                        <AnimatePresence>
+                          {(isActive || hoveredItem === item.id) && (
+                            <motion.div
+                              layoutId="nav-indicator"
+                              className="absolute bottom-0 left-1 right-1 h-0.5 rounded-full"
+                              style={{ background: 'var(--electric)' }}
+                              initial={{ opacity: 0, scaleX: 0 }}
+                              animate={{ opacity: isActive ? 1 : 0.45, scaleX: 1 }}
+                              exit={{ opacity: 0, scaleX: 0 }}
+                              transition={{ duration: 0.2 }}
+                            />
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Subtle vertical divider */}
+                <div className="h-4 w-px bg-slate-300/80 mx-1" aria-hidden="true" />
+
+                {/* Separate Resume CTA Button */}
+                <MagneticButton
+                  as="a"
+                  href="https://drive.google.com/file/d/1vXHajmIwRf1-Bo7TGxmV4ZXL63WlD4ev/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline flex items-center gap-1.5"
+                  style={{
+                    padding: '0.45rem 1.15rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 650,
+                    borderRadius: '0.625rem',
+                    borderColor: 'rgba(99, 102, 241, 0.25)',
+                    background: 'rgba(99, 102, 241, 0.06)',
+                    color: '#4338ca',
+                  } as React.CSSProperties}
+                  aria-label="View Resume"
+                >
+                  Resume <ArrowUpRight size={13} />
+                </MagneticButton>
+              </nav>
+
+              {/* Mobile menu toggle */}
+              <button
+                className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 bg-white/80 text-text-primary hover:text-indigo-600 hover:border-indigo-300 transition-all cursor-pointer shadow-xs"
+                onClick={() => setIsOpen((v) => !v)}
+                aria-label={isOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isOpen}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {isOpen ? (
+                    <motion.span
+                      key="close"
+                      initial={{ rotate: -90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: 90, opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <X size={19} />
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="open"
+                      initial={{ rotate: 90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: -90, opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <Menu size={19} />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </button>
             </div>
           </div>
         </div>
+      </motion.header>
 
-        {/* Mobile Navigation */}
-        <motion.div
-          initial={false}
-          animate={isMenuOpen ? 'open' : 'closed'}
-          variants={{
-            open: { opacity: 1, height: 'auto', y: 0, display: 'block' },
-            closed: { opacity: 0, height: 0, y: -10, transitionEnd: { display: 'none' } },
-          }}
-          className="lg:hidden absolute top-[calc(100%+0.5rem)] left-4 right-4 glass rounded-2xl shadow-2xl z-50 border border-slate-800/80 backdrop-blur-2xl overflow-hidden"
-        >
-          <div className="py-6 space-y-2 border-t border-slate-800/50">
-            {navItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="block px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-indigo-600/10 text-base font-bold transition-all"
-                onClick={() => setIsMenuOpen(false)}
+      {/* Mobile full-screen animated drawer */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="fixed inset-0 z-40 flex flex-col md:hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            style={{
+              background: 'rgba(251, 251, 254, 0.98)',
+              backdropFilter: 'blur(28px)',
+            }}
+          >
+            <div className="flex-1 flex flex-col justify-center items-center gap-4 pt-20 px-6">
+              {navItems.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ delay: i * 0.05, duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+                >
+                  <button
+                    onClick={() => scrollToSection(item.id)}
+                    className="block px-6 py-3 text-3xl font-display font-700 text-text-primary hover:text-indigo-600 transition-colors cursor-pointer bg-transparent border-none"
+                    style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}
+                  >
+                    {item.label}
+                  </button>
+                </motion.div>
+              ))}
+
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ delay: navItems.length * 0.05, duration: 0.25 }}
+                className="mt-6"
               >
-                {item.name}
-              </a>
-            ))}
-            <div className="pt-4 flex items-center justify-between px-4">
-               <div className="flex gap-3">
-                {socialLinks.map((link) => {
-                  const LinkIcon = link.icon as React.ElementType;
-                  return (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      className="p-3 glass rounded-xl text-slate-400 hover:text-white transition-colors duration-300"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={link.ariaLabel}
-                    >
-                      <LinkIcon size={18} />
-                    </a>
-                  );
-                })}
-              </div>
-              <a
-                href="#contact"
-                className="px-6 py-2.5 bg-white text-slate-950 text-sm font-bold rounded-xl"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Hire Me
-              </a>
+                <a
+                  href="https://drive.google.com/file/d/1vXHajmIwRf1-Bo7TGxmV4ZXL63WlD4ev/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary flex items-center gap-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Resume <ArrowUpRight size={16} />
+                </a>
+              </motion.div>
             </div>
-          </div>
-        </motion.div>
-      </div>
-    </motion.nav>
+
+            {/* Mobile drawer footer */}
+            <motion.div
+              className="pb-10 flex justify-center gap-8 text-text-muted text-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35 }}
+            >
+              <a href="https://github.com/BalaNerd" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors font-semibold">GitHub</a>
+              <a href="https://www.linkedin.com/in/s-balaraju/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors font-semibold">LinkedIn</a>
+              <a href="mailto:balaraju1805@gmail.com" className="hover:text-indigo-600 transition-colors font-semibold">Email</a>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

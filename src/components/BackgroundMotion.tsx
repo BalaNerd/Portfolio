@@ -1,115 +1,142 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 
-const BackgroundMotion = () => {
-  const [particles, setParticles] = useState<Array<any>>([]);
+/**
+ * BackgroundMotion — Light Aurora atmosphere
+ * Multi-layer atmospheric blends with cursor-following subtle depth and scroll parallax.
+ * GPU-friendly, buttery 60-120fps with zero layout thrashing.
+ */
+const BackgroundMotion: React.FC = () => {
+  const { scrollYProgress } = useScroll();
+
+  // Scroll parallax depth for layers
+  const layer1ScrollY = useTransform(scrollYProgress, [0, 1], ['0%', '-12%']);
+  const layer2ScrollY = useTransform(scrollYProgress, [0, 1], ['0%',  '10%']);
+  const layer3ScrollX = useTransform(scrollYProgress, [0, 1], ['0%',   '6%']);
+
+  // Cursor-driven subtle atmospheric parallax
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // Different spring dampings for spatial depth
+  const spring1X = useSpring(mouseX, { stiffness: 45, damping: 25 });
+  const spring1Y = useSpring(mouseY, { stiffness: 45, damping: 25 });
+
+  const spring2X = useSpring(mouseX, { stiffness: 30, damping: 30 });
+  const spring2Y = useSpring(mouseY, { stiffness: 30, damping: 30 });
+
+  const spring3X = useSpring(mouseX, { stiffness: 60, damping: 20 });
+  const spring3Y = useSpring(mouseY, { stiffness: 60, damping: 20 });
+
+  // Coordinated layer offset transforms
+  const layer1CursorX = useTransform(spring1X, [-0.5, 0.5], [-20, 20]);
+  const layer1CursorY = useTransform(spring1Y, [-0.5, 0.5], [-20, 20]);
+
+  const layer2CursorX = useTransform(spring2X, [-0.5, 0.5], [25, -25]);
+  const layer2CursorY = useTransform(spring2Y, [-0.5, 0.5], [25, -25]);
+
+  const layer3CursorX = useTransform(spring3X, [-0.5, 0.5], [-12, 12]);
+  const layer3CursorY = useTransform(spring3Y, [-0.5, 0.5], [-12, 12]);
+
+  // Subtle cursor light field
+  const cursorLightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Generate premium cosmic dust particles
-    const generateParticles = (count: number) => {
-      return Array.from({ length: count }, (_, i) => {
-        // Randomize premium colors (indigo, purple, blue, soft white)
-        const colors = ['bg-indigo-400', 'bg-purple-400', 'bg-blue-400', 'bg-white'];
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        
-        return {
-          id: i,
-          x: Math.random() * 100, // Initial viewport %
-          y: Math.random() * 100, // Initial viewport %
-          size: Math.random() * 2.5 + 1, // 1px to 3.5px for crisp dots
-          color,
-          duration: Math.random() * 20 + 20, // 20s to 40s slow drift
-          // Start and end drift offsets
-          startX: (Math.random() - 0.5) * 100,
-          endX: (Math.random() - 0.5) * 100,
-          startY: (Math.random() - 0.5) * 100,
-          endY: (Math.random() - 0.5) * 100,
-          baseOpacity: Math.random() * 0.4 + 0.3, // 0.3 to 0.7 ALWAYS visible
-        };
-      });
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) return;
+
+    let targetX = -1000;
+    let targetY = -1000;
+    let currentX = -1000;
+    let currentY = -1000;
+    let isVisible = false;
+    let rafId: number;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const { innerWidth, innerHeight } = window;
+      mouseX.set(e.clientX / innerWidth - 0.5);
+      mouseY.set(e.clientY / innerHeight - 0.5);
+
+      targetX = e.clientX;
+      targetY = e.clientY;
+      isVisible = true;
     };
 
-    const handleResize = () => {
-      const count = window.innerWidth < 768 ? 15 : 75; // Less particles on mobile
-      setParticles(generateParticles(count));
+    const handleMouseLeave = () => {
+      isVisible = false;
     };
 
-    handleResize(); // Initial generation
-    
-    // Optional: could add resize listener, but generating once on load is safer for performance
-  }, []);
+    const updateCursorLight = () => {
+      if (cursorLightRef.current) {
+        // Smooth lerp for cursor atmospheric illumination
+        currentX += (targetX - currentX) * 0.12;
+        currentY += (targetY - currentY) * 0.12;
+
+        cursorLightRef.current.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`;
+        cursorLightRef.current.style.opacity = isVisible ? '1' : '0';
+      }
+      rafId = requestAnimationFrame(updateCursorLight);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave);
+    rafId = requestAnimationFrame(updateCursorLight);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      cancelAnimationFrame(rafId);
+    };
+  }, [mouseX, mouseY]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {/* Deep Background Gradient Globs - Highly subtle so they don't wash out UI */}
-      <motion.div 
-        className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-indigo-600/10 blur-[60px] md:blur-[120px] will-change-transform"
-        style={{ transform: 'translateZ(0)' }}
-        animate={{
-          x: [0, 50, 0],
-          y: [0, 30, 0],
+    <div className="aurora-bg" aria-hidden="true">
+      {/* Dynamic soft cursor atmospheric field */}
+      <div
+        ref={cursorLightRef}
+        className="fixed top-0 left-0 w-[550px] h-[550px] rounded-full pointer-events-none transition-opacity duration-500 will-change-transform z-0"
+        style={{
+          background: 'radial-gradient(circle, rgba(167, 139, 250, 0.14) 0%, rgba(99, 102, 241, 0.06) 40%, transparent 70%)',
+          filter: 'blur(45px)',
+          opacity: 0,
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div 
-        className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-purple-600/10 blur-[60px] md:blur-[120px] will-change-transform"
-        style={{ transform: 'translateZ(0)' }}
-        animate={{
-          x: [0, -50, 0],
-          y: [0, -30, 0],
-        }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      {/* Grid Overlay - Premium structure */}
-      <motion.div 
-        className="absolute inset-0 opacity-[0.20]"
+      {/* Layer 1 — soft lavender & pale indigo (top-left) */}
+      <motion.div
+        className="aurora-layer aurora-layer-1"
         style={{
-          backgroundImage: "url('/grid.svg')",
-          maskImage: 'linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
-          WebkitMaskImage: 'linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)'
-        }}
-        animate={{
-          backgroundPosition: ['0px 0px', '50px 50px']
-        }}
-        transition={{
-          duration: 25, // Slower, more cinematic grid pan
-          repeat: Infinity,
-          ease: 'linear'
+          y: layer1ScrollY,
+          x: layer1CursorX,
+          translateY: layer1CursorY,
         }}
       />
-      
-      {/* Continuous Cosmic Dust Particles */}
-      {particles.map((particle) => (
-        <motion.div
-          key={`particle-${particle.id}`}
-          className={`absolute rounded-full ${particle.color}`}
-          style={{
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-            willChange: 'transform, opacity',
-            transform: 'translateZ(0)',
-          }}
-          initial={{
-            x: particle.startX,
-            y: particle.startY,
-            opacity: particle.baseOpacity,
-          }}
-          animate={{
-            x: [particle.startX, particle.endX, particle.startX],
-            y: [particle.startY, particle.endY, particle.startY],
-            // Gentle pulse, never hitting 0
-            opacity: [particle.baseOpacity, particle.baseOpacity + 0.3, particle.baseOpacity], 
-          }}
-          transition={{
-            duration: particle.duration,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-      ))}
+
+      {/* Layer 2 — pale violet & soft blue (bottom-right) */}
+      <motion.div
+        className="aurora-layer aurora-layer-2"
+        style={{
+          y: layer2ScrollY,
+          x: layer2CursorX,
+          translateY: layer2CursorY,
+        }}
+      />
+
+      {/* Layer 3 — soft cyan (mid-left) */}
+      <motion.div
+        className="aurora-layer aurora-layer-3"
+        style={{
+          x: layer3ScrollX,
+          translateX: layer3CursorX,
+          translateY: layer3CursorY,
+        }}
+      />
+
+      {/* Layer 4 — subtle coral / peach warmth */}
+      <div className="aurora-layer aurora-layer-4" />
+
+      {/* Atmospheric noise grain texture */}
+      <div className="aurora-noise" />
     </div>
   );
 };

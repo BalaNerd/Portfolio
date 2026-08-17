@@ -1,254 +1,307 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { GitBranch as GitHub, ExternalLink} from 'lucide-react';
-import { containerVariants, itemVariants } from '../utils/variants';
+import React, { useState, useRef, useCallback } from 'react';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
+import { GithubIcon } from './ui/Icons';
+import BlurReveal from './ui/BlurReveal';
 
-const Projects = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
+interface Project {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  tech: string[];
+  github: string;
+  live: string;
+  accentColor: string;
+  stats: string;
+  index: string;
+}
 
-  const projects = [
-    {
-      id: 1,
-      title: 'Canteen_Connect',
-      description: 'A high-performance PWA designed for streamlined canteen management. Features multi-role authentication (Admin/Staff), real-time order tracking, and dynamic digital receipts.',
-      tech: ['React', 'Tailwind CSS', 'Supabase', 'PWA'],
-      github: 'https://github.com/BalaNerd/Canteen_Connect',
-      live: 'https://canteen-connect.onrender.com',
-      category: 'web',
-      image: 'canteen',
-      featured: true,
-      stats: '150+ Users'
-    },
-    {
-      id: 2,
-      title: 'SpendWise',
-      description: 'Sophisticated financial management platform with interactive data visualization. Personalised expense tracking, budget forecasting, and real-time category analysis.',
-      tech: ['Next.js', 'TypeScript', 'Supabase', 'Recharts'],
-      github: 'https://github.com/BalaNerd/spendwise',
-      live: 'https://spendwise-two-kappa.vercel.app',
-      category: 'web',
-      image: 'spendwise',
-      featured: true,
-      stats: 'Beta'
-    },
-    {
-      id: 3,
-      title: 'Social-Media-Usage-Analytics',
-      description: 'Data-intensive analytics engine for tracking social media patterns. Leverages Redis and BullMQ for high-throughput background processing and real-time data ingestion.',
-      tech: ['Next.js', 'Node.js', 'Redis', 'BullMQ', 'MongoDB'],
-      github: 'https://github.com/BalaNerd/Social-Media-Usage-Analytics',
-      live: null,
-      category: 'data',
-      image: 'analytics',
-      featured: true,
-      stats: 'Scaleable'
-    },
-    {
-      id: 4,
-      title: 'CityPulse',
-      description: 'Live Urban Activity Intelligence Engine. Real-time data processing system analyzing urban mobility and activity patterns with interactive dashboards and predictive insights.',
-      tech: ['Python', 'React', 'Next.js', 'Tailwind CSS', 'WebSockets'],
-      github: 'https://github.com/BalaNerd/City-pulse',
-      live: null,
-      category: 'data',
-      image: 'citypulse',
-      featured: true,
-      stats: 'Real-time'
-    },
-  ];
+const projects: Project[] = [
+  {
+    id: 1,
+    title: 'CanteenConnect',
+    category: 'Full-Stack Web Application',
+    description:
+      'Smart canteen management system designed to streamline food ordering, reduce wait times, and provide real-time order tracking with efficient queue handling and responsive UI.',
+    tech: ['React', 'Tailwind CSS', 'Supabase', 'PostgreSQL', 'PWA'],
+    github: 'https://github.com/BalaNerd/Canteen_Connect',
+    live: 'https://canteen-connect.onrender.com/home',
+    accentColor: '#4f46e5',
+    stats: 'Queue Management & PWA',
+    index: '01',
+  },
+  {
+    id: 2,
+    title: 'SpendWise',
+    category: 'Personal Finance Platform',
+    description:
+      'Personal finance tracking system for monitoring expenses, analyzing spending patterns, and generating data-driven insights with transaction categorization and spending visualization.',
+    tech: ['Next.js', 'TypeScript', 'Supabase', 'Recharts', 'Tailwind CSS'],
+    github: 'https://github.com/BalaNerd/spendwise',
+    live: 'https://spendwise-two-kappa.vercel.app',
+    accentColor: '#0284c7',
+    stats: 'Financial Analytics & Insights',
+    index: '02',
+  },
+];
 
-  const filters = [
-    { id: 'all', name: 'All Work' },
-    { id: 'web', name: 'Web Apps' },
-    { id: 'data', name: 'Data Systems' },
-  ];
+// Spatial tilt card wrapper
+const TiltCard: React.FC<{ children: React.ReactNode; className?: string; intensity?: number }> = ({
+  children,
+  className = '',
+  intensity = 4,
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-0.5, 0.5], [intensity, -intensity]);
+  const rotateY = useTransform(x, [-0.5, 0.5], [-intensity, intensity]);
 
-  const filteredProjects = activeFilter === 'all'
-    ? projects
-    : projects.filter(project => project.category === activeFilter);
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  }, [x, y]);
+
+  const handleMouseLeave = useCallback(() => {
+    x.set(0);
+    y.set(0);
+  }, [x, y]);
 
   return (
-    <section id="projects" className="py-24 px-4 bg-slate-950/50">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="text-center mb-20"
-        >
-          <motion.div
-            variants={itemVariants}
-            className="inline-block px-4 py-1.5 mb-4 glass rounded-full"
-          >
-            <span className="text-sm font-medium text-pink-400">Portfolio</span>
-          </motion.div>
+    <motion.div
+      ref={ref}
+      className={className}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+      transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold mb-6"
-          >
-            <span className="gradient-text">Featured Innovations</span>
-          </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-slate-400 text-lg max-w-2xl mx-auto"
-          >
-            A selective showcase of zero-to-one products and engineering solutions.
-          </motion.p>
-        </motion.div>
+// Featured Project Card Component
+const ProjectCard: React.FC<{ project: Project; delay?: number }> = ({ project, delay = 0 }) => {
+  const [isHovered, setIsHovered] = useState(false);
 
-        {/* Filter Buttons */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="flex flex-wrap justify-center gap-3 mb-16"
+  return (
+    <BlurReveal delay={delay} className="w-full">
+      <TiltCard
+        className="project-card overflow-hidden cursor-default border border-slate-200/80 bg-white/90 shadow-sm"
+        intensity={3}
+      >
+        <div
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="transition-colors duration-300"
+          style={{
+            borderColor: isHovered ? `${project.accentColor}50` : 'rgba(15, 23, 42, 0.08)',
+          }}
         >
-          {filters.map((filter) => (
-            <motion.button
-              key={filter.id}
-              variants={itemVariants}
-              onClick={() => setActiveFilter(filter.id)}
-              className={`px-6 py-2.5 rounded-xl font-bold transition-all duration-300 border ${
-                activeFilter === filter.id
-                  ? 'bg-indigo-600 border-indigo-500 text-white'
-                  : 'glass border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-              }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+          <div className="grid md:grid-cols-12 gap-0">
+            {/* Visual Panel */}
+            <div
+              className="md:col-span-5 relative overflow-hidden min-h-[220px] md:min-h-[320px] flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100"
+              style={{
+                background: `linear-gradient(135deg, ${project.accentColor}12 0%, ${project.accentColor}04 100%)`,
+              }}
             >
-              {filter.name}
-            </motion.button>
-          ))}
-        </motion.div>
+              {/* Abstract grid */}
+              <div className="absolute inset-0 opacity-40 pointer-events-none" aria-hidden="true">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <pattern id={`proj-grid-${project.id}`} width="32" height="32" patternUnits="userSpaceOnUse">
+                      <path d="M 32 0 L 0 0 0 32" fill="none" stroke={project.accentColor} strokeWidth="0.75" opacity="0.25"/>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill={`url(#proj-grid-${project.id})`} />
+                </svg>
+              </div>
 
-        {/* Projects Grid */}
-        <motion.div
-          layout
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          <AnimatePresence>
-          {filteredProjects.map((project) => (
-            <motion.div
-              layout
-              key={project.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="project-card group flex flex-col glass rounded-2xl border border-slate-800/60 md:hover:border-indigo-500/50 md:hover:bg-slate-900/40 md:hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500 will-change-transform"
-              style={{ transform: 'translateZ(0)' }}
-            >
-              {/* Project Content */}
-              <div className="p-8 flex flex-col flex-grow relative overflow-hidden rounded-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                
-                <div className="mb-6 flex-grow relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors">
-                      {project.title}
-                    </h3>
-                    <span className="glass px-3 py-1 rounded-lg text-xs font-bold text-indigo-400 border-indigo-500/20 whitespace-nowrap ml-4">
-                      {project.stats}
-                    </span>
-                  </div>
-                  <p className="text-slate-400 text-sm leading-relaxed line-clamp-4 group-hover:text-slate-300 transition-colors">
-                    {project.description}
-                  </p>
-                </div>
+              {/* Radial glow */}
+              <motion.div
+                className="absolute w-44 h-44 rounded-full pointer-events-none"
+                style={{ background: `radial-gradient(circle, ${project.accentColor}25 0%, transparent 70%)` }}
+                animate={{ scale: isHovered ? 1.25 : 1, opacity: isHovered ? 1 : 0.6 }}
+                transition={{ duration: 0.5 }}
+              />
 
-                {/* Tech Stack */}
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {project.tech.map((tech, index) => (
-                    <span
-                      key={index}
-                      className="text-[10px] uppercase tracking-widest px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-lg font-bold border border-indigo-500/10"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
+              {/* Large Index Number */}
+              <span
+                className="relative z-10 font-display font-800 pointer-events-none select-none"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 800,
+                  fontSize: 'clamp(5rem, 9vw, 7rem)',
+                  color: `${project.accentColor}28`,
+                  letterSpacing: '-0.05em',
+                  lineHeight: 1,
+                }}
+              >
+                {project.index}
+              </span>
+            </div>
 
-                {/* Links */}
-                <div className="flex items-center gap-3 pt-6 border-t border-slate-800/50 mt-auto">
-                  {/* Source Code Button */}
-                  <motion.a
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 glass rounded-xl text-slate-300 hover:text-white border border-slate-700/50 hover:border-indigo-500/40 transition-all duration-300 text-sm font-bold"
-                    whileHover={{ scale: 1.03, y: -1 }}
-                    whileTap={{ scale: 0.97 }}
+            {/* Content Panel */}
+            <div className="md:col-span-7 p-7 sm:p-9 flex flex-col justify-between relative z-20">
+              <div>
+                {/* Category & Status */}
+                <div className="flex items-center justify-between mb-4">
+                  <span
+                    className="section-label text-[11px] font-bold px-3 py-1 rounded-md border tracking-wider uppercase"
+                    style={{
+                      color: project.accentColor,
+                      borderColor: `${project.accentColor}30`,
+                      background: `${project.accentColor}0a`,
+                    }}
                   >
-                    <GitHub size={16} />
-                    Source Code
-                  </motion.a>
+                    {project.index} · {project.category}
+                  </span>
 
-                  {/* Live Demo Button */}
-                  {project.live ? (
+                  {/* Top-Right Quick Links */}
+                  <div className="flex items-center gap-2">
+                    <motion.a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${project.title} Source Code on GitHub`}
+                      title="View Source Code on GitHub"
+                      className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-text-secondary hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-xs"
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <GithubIcon size={16} />
+                    </motion.a>
                     <motion.a
                       href={project.live}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-white text-sm font-bold hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all duration-300"
-                      whileHover={{ scale: 1.03, y: -1 }}
-                      whileTap={{ scale: 0.97 }}
+                      aria-label={`View ${project.title} Live Demo`}
+                      title="View Live Demo"
+                      className="w-9 h-9 flex items-center justify-center rounded-xl border border-indigo-200/80 bg-indigo-50/50 text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100 transition-all shadow-xs"
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <ExternalLink size={16} />
-                      Live Demo
+                      <ArrowUpRight size={16} />
                     </motion.a>
-                  ) : (
-                    <div className="flex-1 relative group/tooltip">
-                      <button
-                        disabled
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 glass rounded-xl text-slate-600 border border-slate-800/50 cursor-not-allowed text-sm font-bold"
-                        aria-label="Live Demo - Coming Soon"
-                      >
-                        <ExternalLink size={16} />
-                        Live Demo
-                      </button>
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-300 font-medium whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-                        Coming Soon
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
-                      </div>
-                    </div>
-                  )}
+                  </div>
+                </div>
+
+                {/* Project Title */}
+                <h3
+                  className="text-text-primary mb-3 font-bold"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                    fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {project.title}
+                </h3>
+
+                {/* Resume-backed Description */}
+                <p
+                  className="text-text-secondary text-sm leading-relaxed mb-6 font-normal"
+                  style={{ fontFamily: 'var(--font-body)' }}
+                >
+                  {project.description}
+                </p>
+
+                {/* Technology Pills */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {project.tech.map((t) => (
+                    <span key={t} className="tech-pill">
+                      {t}
+                    </span>
+                  ))}
                 </div>
               </div>
-            </motion.div>
-          ))}
-          </AnimatePresence>
-        </motion.div>
 
-        {/* Call to Action */}
-        <motion.div
-          variants={itemVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="text-center mt-16"
-        >
-          <p className="text-gray-300 text-lg mb-6">
-            Want to see more projects?
+              {/* Verified Action Buttons */}
+              <div className="pt-6 border-t border-slate-100 flex flex-wrap items-center gap-3">
+                <motion.a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`View Source Code for ${project.title}`}
+                  className="btn-outline inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-text-primary hover:text-indigo-600 shadow-xs"
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <GithubIcon size={15} /> Source Code <ArrowUpRight size={14} />
+                </motion.a>
+
+                <motion.a
+                  href={project.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`View Live Demo for ${project.title}`}
+                  className="btn-primary inline-flex items-center gap-2 py-2.5 px-5 text-sm font-bold shadow-sm"
+                  style={{
+                    background: project.id === 2 ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : undefined,
+                  }}
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Live Demo <ArrowUpRight size={15} />
+                </motion.a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </TiltCard>
+    </BlurReveal>
+  );
+};
+
+const Projects: React.FC = () => {
+  return (
+    <section id="projects" className="relative py-28 md:py-36 overflow-hidden">
+      <div className="section-divider mb-16" />
+      <div className="container-main pt-0">
+        {/* Section header */}
+        <BlurReveal delay={0} className="mb-16">
+          <span className="section-label block mb-4 text-indigo-600">02 — Work</span>
+          <h2 className="section-title">
+            Selected <span className="gradient-text">Work</span>
+          </h2>
+          <p
+            className="text-text-secondary mt-4 max-w-xl font-normal"
+            style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.7 }}
+          >
+            Verified full-stack and data projects built with real-world constraints — performance, responsive design, and clean user experience.
           </p>
+        </BlurReveal>
+
+        {/* Verified Project Cards */}
+        <div className="space-y-8 mb-16">
+          {projects.map((project, i) => (
+            <ProjectCard key={project.id} project={project} delay={0.1 + i * 0.1} />
+          ))}
+        </div>
+
+        {/* GitHub CTA */}
+        <BlurReveal delay={0.3} className="flex justify-center">
           <motion.a
             href="https://github.com/BalaNerd"
             target="_blank"
             rel="noopener noreferrer"
-            className="shimmer-button inline-flex items-center gap-2"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="btn-outline inline-flex items-center gap-2"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
-            <GitHub size={20} />
-            Visit My GitHub
+            <GithubIcon size={16} /> View all repositories on GitHub <ArrowUpRight size={14} />
           </motion.a>
-        </motion.div>
+        </BlurReveal>
       </div>
     </section>
   );

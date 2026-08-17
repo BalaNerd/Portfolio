@@ -1,152 +1,209 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Code, Database, Globe } from 'lucide-react';
-import { containerVariants, itemVariants } from '../utils/variants';
+import { MapPin, Code2, Database, Globe, Zap, GraduationCap } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from './ui/Icons';
+import BlurReveal from './ui/BlurReveal';
+import BentoCard from './ui/BentoCard';
 
-const About = () => {
-  const skills = [
+const About: React.FC = () => {
+  const capabilities = [
     {
-      icon: Code,
-      title: 'Full Stack Dev',
-      description: 'Building scalable web apps with React, Next.js, and Node.js.',
+      icon: Code2,
+      title: 'Full-Stack Dev',
+      desc: 'React, Next.js, Node.js — end-to-end product engineering with precision.',
+      color: '#4f46e5',
+      bgColor: 'rgba(79, 70, 229, 0.08)',
     },
     {
       icon: Database,
       title: 'Data & Backend',
-      description: 'Designing efficient APIs and managing complex data workflows.',
+      desc: 'Designing efficient APIs, scalable schemas, and high-throughput pipelines.',
+      color: '#0284c7',
+      bgColor: 'rgba(2, 132, 199, 0.08)',
     },
     {
       icon: Globe,
       title: 'Problem Solver',
-      description: 'Translating business requirements into technical solutions.',
+      desc: 'Translating complex real-world requirements into clean, performant software.',
+      color: '#7c3aed',
+      bgColor: 'rgba(124, 58, 237, 0.08)',
     },
   ];
 
   return (
-    <section id="about" className="py-24 px-4 relative overflow-hidden">
-      <div className="max-w-6xl mx-auto relative z-10">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="text-center mb-20"
-        >
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold mb-6"
-          >
-            <span className="gradient-text">About My Journey</span>
-          </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-slate-400 text-lg max-w-2xl mx-auto font-medium"
-          >
-            Bridging the gap between data-driven insights and modern web engineering.
-          </motion.p>
-        </motion.div>
+    <section id="about" className="relative py-28 md:py-36 overflow-hidden">
+      <div className="section-divider mb-16" />
+      <div className="container-main">
 
-        <div className="grid md:grid-cols-2 gap-16 items-center">
-          {/* Profile Image Area */}
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            className="relative group"
-          >
-            <div className="relative w-72 h-72 mx-auto">
-              {/* Decorative elements */}
-              <div className="absolute inset-[-20px] bg-indigo-500/20 rounded-full blur-2xl group-hover:bg-indigo-500/40 group-hover:scale-105 transition-all duration-500" />
-              <div className="absolute inset-0 border-2 border-dashed border-indigo-500/30 rounded-full animate-[spin_20s_linear_infinite]" />
-              
-              <div className="relative glass h-full w-full rounded-full p-2 overflow-hidden shadow-[0_0_30px_rgba(99,102,241,0.2)]">
-                <div className="bg-slate-950 rounded-full w-full h-full flex items-center justify-center relative overflow-hidden group">
-                  <img
-                    src="/profile.png"
-                    alt="Bala Raju - Developer Profile"
-                    className="w-full h-full object-cover object-top rounded-full"
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        const icon = document.createElement('span');
-                        icon.className = 'text-slate-700 text-[140px] flex items-center justify-center w-full h-full';
-                        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
-                        parent.appendChild(icon);
-                      }
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+        {/* Section header */}
+        <BlurReveal delay={0} className="mb-16">
+          <span className="section-label block mb-4 text-indigo-600">01 — About</span>
+          <h2 className="section-title text-text-primary">
+            The person<br />
+            <span className="gradient-text">behind the code.</span>
+          </h2>
+        </BlurReveal>
+
+        {/* Bento grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-auto">
+
+          {/* Hero statement — large card */}
+          <div className="md:col-span-8">
+            <BentoCard className="p-8 h-full min-h-[220px] flex flex-col justify-between" delay={0.05} glowColor="rgba(99,102,241,0.12)">
+              <p
+                className="text-text-primary leading-relaxed font-semibold"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(1.15rem, 2.4vw, 1.5rem)',
+                  fontWeight: 600,
+                  lineHeight: 1.55,
+                }}
+              >
+                I build full-stack applications, data-driven systems and interactive digital
+                experiences — bridging the gap between complex data and beautiful interfaces.
+              </p>
+              <div className="flex items-center gap-4 mt-6 pt-4 border-t border-slate-100">
+                <motion.a
+                  href="https://github.com/BalaNerd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                  className="flex items-center gap-2 text-xs font-semibold text-text-secondary hover:text-indigo-600 transition-colors"
+                  whileHover={{ x: 2 }}
+                >
+                  <GithubIcon size={15} /> BalaNerd
+                </motion.a>
+                <span className="text-slate-300">·</span>
+                <motion.a
+                  href="https://www.linkedin.com/in/s-balaraju/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="flex items-center gap-2 text-xs font-semibold text-text-secondary hover:text-indigo-600 transition-colors"
+                  whileHover={{ x: 2 }}
+                >
+                  <LinkedinIcon size={15} /> s-balaraju
+                </motion.a>
+              </div>
+            </BentoCard>
+          </div>
+
+          {/* Location card */}
+          <div className="md:col-span-4">
+            <BentoCard className="p-6 h-full min-h-[180px] flex flex-col justify-between" delay={0.1} glowColor="rgba(2,132,199,0.1)">
+              <div className="flex items-center gap-2 text-cyan-600 mb-3">
+                <MapPin size={16} />
+                <span className="section-label text-[10px] text-cyan-600 font-bold">Location</span>
+              </div>
+              <div>
+                <p className="text-text-primary font-display font-700 text-2xl mb-1" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
+                  Chennai
+                </p>
+                <p className="text-text-muted text-sm font-medium">Tamil Nadu, India</p>
+              </div>
+              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs text-text-muted font-medium">Open to remote opportunities</span>
+              </div>
+            </BentoCard>
+          </div>
+
+          {/* Education card */}
+          <div className="md:col-span-5">
+            <BentoCard className="p-6 sm:p-7 h-full flex flex-col justify-between" delay={0.15} glowColor="rgba(124,58,237,0.12)">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-50 border border-purple-100">
+                      <GraduationCap size={16} className="text-purple-600" />
+                    </div>
+                    <span className="section-label text-[10px] text-purple-600 font-bold tracking-widest uppercase">DEGREE</span>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                    CGPA 8.61
+                  </span>
+                </div>
+
+                <h3 className="text-text-primary font-display font-700 text-xl leading-snug mb-1" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
+                  Bachelor of Technology <br />
+                  <span className="text-indigo-600 font-semibold text-base">in Computer Science</span>
+                </h3>
+
+                <p className="text-text-secondary text-sm font-medium mt-2 mb-0.5">
+                  SRM Institute of Science and Technology
+                </p>
+                <p className="text-text-muted text-xs">
+                  Ramapuram, Tamil Nadu, India
+                </p>
+              </div>
+
+              <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-text-muted block text-[10px] uppercase tracking-wider font-semibold">Specialization</span>
+                  <span className="text-purple-700 font-bold">Big Data Analytics</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-text-muted block text-[10px] uppercase tracking-wider font-semibold">Timeline</span>
+                  <span className="text-text-primary font-bold">2023 — 2027</span>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </BentoCard>
+          </div>
 
-          {/* About Content */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            className="space-y-8"
-          >
-            <motion.div variants={itemVariants} className="space-y-4">
-              <h3 className="text-2xl font-bold text-white">Who am I?</h3>
-              <p className="text-slate-400 leading-relaxed text-lg">
-                I'm a dedicated <span className="text-blue-400 font-semibold">Computer Science Engineer</span> with a passion for architecting 
-                robust, data-centric applications. With a foundation in Big Data Analytics, I bring a unique 
-                analytical perspective to every piece of code I write.
-              </p>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="space-y-4">
-              <h3 className="text-2xl font-bold text-white">My Mission</h3>
-              <p className="text-slate-400 leading-relaxed text-lg">
-                Whether it's building real-time canteen management systems or optimizing financial tracking apps, 
-                my goal is always the same: <span className="italic text-slate-300">to create software that is not just 
-                functional, but exceptional.</span>
-              </p>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="flex flex-wrap gap-4 pt-4">
-              <div className="px-4 py-2 glass rounded-xl text-sm font-medium text-slate-300">Backend Architect</div>
-              <div className="px-4 py-2 glass rounded-xl text-sm font-medium text-slate-300">Data Analytics</div>
-              <div className="px-4 py-2 glass rounded-xl text-sm font-medium text-slate-300">PWA Specialist</div>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Skills Quick Look */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="grid md:grid-cols-3 gap-8 mt-24"
-        >
-          {skills.map((skill, index) => {
-            const Icon = skill.icon;
-            return (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="skill-card group"
-              >
-                <div className="w-14 h-14 mb-6 glass rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Icon size={28} className="text-indigo-400" />
+          {/* Currently Building card */}
+          <div className="md:col-span-7">
+            <BentoCard className="p-6 h-full" delay={0.2} glowColor="rgba(99,102,241,0.12)">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-50 border border-indigo-100">
+                    <Zap size={16} className="text-indigo-600" />
+                  </div>
+                  <span className="section-label text-[10px] text-indigo-600 font-bold">Currently Building</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">
-                  {skill.title}
-                </h3>
-                <p className="text-slate-500 text-sm leading-relaxed group-hover:text-slate-400 transition-colors">
-                  {skill.description}
-                </p>
-              </motion.div>
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Active
+                </span>
+              </div>
+              <p className="text-text-primary font-display font-700 text-xl mb-2" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
+                Mission Control OS
+              </p>
+              <p className="text-text-muted text-sm mb-4 leading-relaxed">
+                A unified intelligence layer for real-time data orchestration — combining event-driven architecture with interactive mission dashboards.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {['Next.js', 'Redis', 'WebSockets', 'TypeScript'].map((t) => (
+                  <span key={t} className="tech-pill">{t}</span>
+                ))}
+              </div>
+            </BentoCard>
+          </div>
+
+          {/* Capabilities row */}
+          {capabilities.map((cap, i) => {
+            const Icon = cap.icon;
+            return (
+              <div key={cap.title} className="md:col-span-4">
+                <BentoCard
+                  className="p-6 h-full"
+                  delay={0.25 + i * 0.07}
+                  glowColor={`${cap.color}15`}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border"
+                    style={{ background: cap.bgColor, borderColor: `${cap.color}25` }}
+                  >
+                    <Icon size={18} style={{ color: cap.color }} />
+                  </div>
+                  <p className="text-text-primary font-bold text-base mb-2" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
+                    {cap.title}
+                  </p>
+                  <p className="text-text-muted text-xs leading-relaxed font-normal">{cap.desc}</p>
+                </BentoCard>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

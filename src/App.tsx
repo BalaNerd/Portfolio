@@ -1,4 +1,5 @@
 import React from 'react';
+import { LazyMotion, domAnimation } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -11,19 +12,29 @@ import BackgroundMotion from './components/BackgroundMotion';
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#030308] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(79,70,229,0.15),rgba(255,255,255,0))] text-white relative overflow-x-hidden">
-      <BackgroundMotion />
-      <div className="relative z-10">
-        <Navbar />
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Experience />
-        <Contact />
-        <Footer />
+    <LazyMotion features={domAnimation} strict>
+      <div
+        className="min-h-screen text-text-primary relative overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900"
+        style={{ backgroundColor: 'var(--aurora-bg)', color: 'var(--text-primary)' }}
+      >
+        {/* Aurora atmosphere — fixed, behind everything */}
+        <BackgroundMotion />
+
+        {/* Content — scrollable, above background */}
+        <div className="relative z-10">
+          <Navbar />
+          <main>
+            <Hero />
+            <About />
+            <Projects />
+            <Skills />
+            <Experience />
+            <Contact />
+          </main>
+          <Footer />
+        </div>
       </div>
-    </div>
+    </LazyMotion>
   );
 }
 
