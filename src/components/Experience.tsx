@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Briefcase, MapPin, Calendar, GraduationCap } from 'lucide-react';
+import { Briefcase, MapPin, Calendar, GraduationCap, Heart, ArrowUpRight } from 'lucide-react';
 import BlurReveal from './ui/BlurReveal';
 
 export interface TimelineItem {
@@ -16,6 +16,7 @@ export interface TimelineItem {
   skills: string[];
   accentColor: string;
   icon: React.ElementType;
+  links?: { label: string; href: string; primary?: boolean }[];
 }
 
 const experiences: TimelineItem[] = [
@@ -77,6 +78,35 @@ const hackathons: TimelineItem[] = [
     skills: ['Flask', 'Machine Learning', 'MFCC', 'Fourier Transform', 'Cybersecurity', 'Cellular Automata'],
     accentColor: '#7c3aed',
     icon: Briefcase,
+  },
+];
+
+const volunteering: TimelineItem[] = [
+  {
+    id: '04',
+    title: 'Student Volunteer',
+    company: 'ExNoRa International Foundation',
+    type: 'Volunteering',
+    location: 'Chennai, India',
+    period: 'Jun 2025 – Jul 2025',
+    description: [
+      'Contributed to urban clean-up drives, plastic segregation campaigns, and community awareness initiatives promoting sustainable living practices in Chennai.',
+    ],
+    skills: ['Community Outreach', 'Environmental Awareness', 'Urban Sustainability'],
+    accentColor: '#059669',
+    icon: Heart,
+    links: [
+      {
+        label: 'Featured in The Hindu',
+        href: 'https://www.thehindu.com/news/cities/chennai/aadi-pattam-a-spotlight-on-volunteers-from-chennai-who-green-neighbourhoods/article69803636.ece',
+        primary: true,
+      },
+      {
+        label: 'View Activity',
+        href: 'https://www.instagram.com/p/DMKedqOx1a8/',
+        primary: false,
+      },
+    ],
   },
 ];
 
@@ -206,6 +236,36 @@ const TimelineEntry: React.FC<{ item: TimelineItem; delay?: number }> = ({ item,
               <span key={skill} className="tech-pill">{skill}</span>
             ))}
           </div>
+
+          {/* External links (e.g. press coverage, activity links) */}
+          {item.links && item.links.length > 0 && (
+            <div className="flex flex-wrap items-center gap-4 mt-5 pt-4 border-t border-slate-100">
+              <span
+                className="section-label text-[10px] tracking-widest"
+                style={{ color: item.accentColor }}
+              >
+                COVERED BY
+              </span>
+              {item.links.map((link) => (
+                <motion.a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    color: link.primary ? item.accentColor : 'var(--text-muted)',
+                    letterSpacing: '0.005em',
+                  }}
+                  whileHover={{ x: 2 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {link.label} <ArrowUpRight size={13} />
+                </motion.a>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
@@ -247,6 +307,20 @@ const Experience: React.FC = () => {
         <div>
           {hackathons.map((hack, i) => (
             <TimelineEntry key={hack.id} item={hack} delay={0.3 + i * 0.1} />
+          ))}
+        </div>
+
+        {/* Volunteering — editorial sub-divider + entries */}
+        <BlurReveal delay={0.1} className="mt-4 mb-12">
+          <div className="flex items-center gap-5">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-emerald-200/60 to-transparent" />
+            <span className="section-label text-[10px] tracking-[0.25em] text-emerald-600">VOLUNTEERING</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-emerald-200/60 to-transparent" />
+          </div>
+        </BlurReveal>
+        <div>
+          {volunteering.map((vol, i) => (
+            <TimelineEntry key={vol.id} item={vol} delay={0.1 + i * 0.1} />
           ))}
         </div>
       </div>

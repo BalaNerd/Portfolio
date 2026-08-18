@@ -286,43 +286,53 @@ const Contact: React.FC = () => {
                   />
                 </div>
 
-                {/* Submit button */}
-                <MagneticButton
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="btn-primary w-full justify-center"
-                  id="contact-submit"
-                  aria-label="Send message"
+                {/* Submit button — stable layout container prevents mobile drift */}
+                <div
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
-                  <AnimatePresence mode="wait" initial={false}>
-                    {isSubmitting ? (
-                      <motion.span
-                        key="loading"
-                        className="flex items-center gap-2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      >
+                  <MagneticButton
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="btn-primary w-full justify-center"
+                    id="contact-submit"
+                    aria-label="Send message"
+                    intensity={0.2}
+                  >
+                    <AnimatePresence mode="wait" initial={false}>
+                      {isSubmitting ? (
                         <motion.span
-                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full inline-block"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 0.7, repeat: Infinity, ease: 'linear' }}
-                        />
-                        Sending...
-                      </motion.span>
-                    ) : (
-                      <motion.span
-                        key="idle"
-                        className="flex items-center gap-2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      >
-                        <Send size={15} /> Send Message
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </MagneticButton>
+                          key="loading"
+                          className="flex items-center gap-2 justify-center"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        >
+                          <motion.span
+                            className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full inline-block"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.7, repeat: Infinity, ease: 'linear' }}
+                          />
+                          Sending...
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="idle"
+                          className="flex items-center gap-2 justify-center"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        >
+                          <Send size={15} /> Send Message
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </MagneticButton>
+                </div>
 
                 {/* Status messages */}
                 <AnimatePresence>

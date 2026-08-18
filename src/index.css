@@ -74,6 +74,23 @@ body {
 }
 
 /* ─────────────────────────────────────────────────
+   CUSTOM CURSOR — hide default on non-touch devices
+───────────────────────────────────────────────── */
+@media (pointer: fine) {
+  /* Hide default cursor site-wide on desktop */
+  *, *::before, *::after {
+    cursor: none !important;
+  }
+}
+
+@media (pointer: coarse) {
+  /* Touch: ensure normal cursor / interaction behaviour */
+  html, body, * {
+    cursor: auto !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────
    AURORA BACKGROUND LAYERS (LIGHT PALETTE)
 ───────────────────────────────────────────────── */
 .aurora-bg {
@@ -152,13 +169,22 @@ body {
 .font-body    { font-family: var(--font-body); }
 .font-mono    { font-family: var(--font-mono); }
 
-/* Kinetic hero sizing — calibrated for single-line desktop presence */
+/* ─────────────────────────────────────────────────
+   HERO TITLE — Dominant editorial masthead
+   Desktop: single line. Must NOT wrap on any width ≥ 1024px.
+   Strategy: fluid clamp based on vw, extremely tight tracking.
+   At 1440px: ~14.4vw → ~207px ≈ ~13rem
+   At 1280px: ~14.4vw → ~184px
+   At 1024px: ~14.4vw → ~148px
+   Mobile: two-line composition, still bold
+───────────────────────────────────────────────── */
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.35rem, 6.4vw, 7.6rem);
+  /* Extra-large fluid range: 3rem at small → up to 14rem at very wide */
+  font-size: clamp(3rem, 14.4vw, 14rem);
   font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
   color: var(--text-primary);
 }
 
@@ -224,6 +250,7 @@ body {
 .btn-primary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.875rem 2rem;
   background: var(--electric);
@@ -239,6 +266,8 @@ body {
   transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
   text-decoration: none;
   white-space: nowrap;
+  /* Stable transform-origin for mobile alignment */
+  transform-origin: center center;
 }
 
 .btn-primary:hover {
@@ -250,6 +279,7 @@ body {
 .btn-outline {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.875rem 2rem;
   background: rgba(255, 255, 255, 0.8);
@@ -266,6 +296,8 @@ body {
   text-decoration: none;
   white-space: nowrap;
   backdrop-filter: blur(8px);
+  /* Stable transform-origin for mobile alignment */
+  transform-origin: center center;
 }
 
 .btn-outline:hover {
@@ -300,7 +332,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────────
-   PROJECT CARDS
+   FEATURED PROJECT CARDS
 ───────────────────────────────────────────────── */
 .project-card {
   position: relative;
@@ -329,6 +361,21 @@ body {
 .project-card:hover {
   border-color: rgba(99, 102, 241, 0.32);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03), 0 24px 50px -12px rgba(99, 102, 241, 0.15);
+}
+
+/* ─────────────────────────────────────────────────
+   COMPACT PROJECT CARDS (Additional Projects)
+───────────────────────────────────────────────── */
+.compact-project-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  backdrop-filter: blur(12px);
+  transition: border-color 0.3s;
+  overflow: hidden;
+  will-change: transform;
 }
 
 /* ─────────────────────────────────────────────────
@@ -409,6 +456,15 @@ body {
   color: var(--text-secondary);
   letter-spacing: 0.03em;
   margin-bottom: 0.5rem;
+}
+
+/* ─────────────────────────────────────────────────
+   SUBMIT BUTTON — stable on mobile
+───────────────────────────────────────────────── */
+#contact-submit {
+  width: 100%;
+  justify-content: center;
+  transform-origin: center center;
 }
 
 /* ─────────────────────────────────────────────────
@@ -516,24 +572,64 @@ body {
 }
 
 /* ─────────────────────────────────────────────────
-   MOBILE UTILITIES
+   MOBILE — Tablet & Phone responsive
 ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero-title {
+    /* Tablet: two-line, strong presence */
+    font-size: clamp(2.75rem, 9.5vw, 5.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+  }
+}
+
 @media (max-width: 640px) {
   .hero-title {
-    font-size: clamp(2.2rem, 9.2vw, 3.4rem);
-    line-height: 1.08;
+    /* Mobile: intentional two-line, visually strong */
+    font-size: clamp(2.5rem, 13.5vw, 4.25rem);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
   }
+
   .hero-subtitle {
     font-size: clamp(0.85rem, 3.8vw, 1.2rem);
   }
+
   .section-title {
     font-size: clamp(1.75rem, 6.5vw, 2.5rem);
   }
+
+  /* Stable contact button on mobile — no drift */
+  #contact-submit {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    transform: none !important;
+  }
+
   .aurora-layer-1,
   .aurora-layer-2,
   .aurora-layer-3,
   .aurora-layer-4 {
     filter: blur(50px);
     opacity: 0.75;
+  }
+}
+
+/* Extreme small phones: 375px & 390px */
+@media (max-width: 400px) {
+  .hero-title {
+    font-size: clamp(2.2rem, 14vw, 3.6rem);
+    letter-spacing: -0.03em;
+  }
+  .container-main {
+    padding-inline: 1rem;
+  }
+}
+
+/* Safe-area support for modern phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .hero-scroll-btn {
+    bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 1.5rem));
   }
 }

@@ -68,7 +68,7 @@ const Hero: React.FC = () => {
     <section
       id="home"
       ref={sectionRef}
-      className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-[76px] pb-12"
+      className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-[76px] pb-24"
     >
       {/* Ghost text background — subtle editorial brutalist texture */}
       <motion.div
@@ -92,13 +92,13 @@ const Hero: React.FC = () => {
         </span>
       </motion.div>
 
-      {/* Main content container with full horizontal room for single-line title */}
+      {/* Main content container */}
       <motion.div
         className="container-main relative z-10 py-8 md:py-16"
         style={{ y: contentY }}
       >
         <div className="w-full">
-          {/* Top Status Bar with intentional, generous breathing room */}
+          {/* Top Status Bar */}
           <motion.div
             className="mb-8 md:mb-10 flex flex-wrap items-center justify-between gap-4"
             initial={{ opacity: 0, y: -10 }}
@@ -124,23 +124,60 @@ const Hero: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Name — Dominant Single-Line Desktop Editorial Statement */}
-          <h1 className="hero-title mb-6 md:mb-8 overflow-visible" aria-label="S. Bala Raju">
-            <div className="w-full leading-none">
+          {/* Name — Dominant editorial masthead — S. BALA RAJU (no period) */}
+          {/* Desktop: single line. Mobile: intentional two-line composition */}
+          <h1 className="hero-title mb-5 md:mb-7 overflow-visible" aria-label="S. Bala Raju">
+
+            {/* Desktop: all on one row — must never wrap */}
+            <div className="hidden sm:block w-full leading-none">
               <VariableProximity
                 wordsConfig={[
                   { text: 'S.', className: 'text-text-primary' },
                   { text: 'BALA', className: 'text-text-primary' },
                   { text: 'RAJU', className: 'gradient-text', gradient: true },
                 ]}
-                containerClassName="flex-wrap sm:flex-nowrap items-baseline tracking-tight w-full"
+                containerClassName="flex-nowrap items-baseline tracking-tight w-full"
                 initialDelay={0.15}
-                radius={240}
-                maxShiftX={13}
-                maxShiftY={16}
-                maxScale={0.12}
-                maxRotate={3.2}
+                radius={320}
+                maxShiftX={20}
+                maxShiftY={26}
+                maxScale={0.14}
+                maxRotate={4}
+                lerpSpeed={0.10}
               />
+            </div>
+
+            {/* Mobile: intentional two-line composition */}
+            <div className="sm:hidden w-full leading-none space-y-0">
+              <div className="leading-none">
+                <VariableProximity
+                  wordsConfig={[
+                    { text: 'S.', className: 'text-text-primary' },
+                    { text: 'BALA', className: 'text-text-primary' },
+                  ]}
+                  containerClassName="flex-nowrap items-baseline tracking-tight"
+                  initialDelay={0.15}
+                  radius={140}
+                  maxShiftX={7}
+                  maxShiftY={9}
+                  maxScale={0.07}
+                  maxRotate={2}
+                />
+              </div>
+              <div className="leading-none">
+                <VariableProximity
+                  wordsConfig={[
+                    { text: 'RAJU', className: 'gradient-text', gradient: true },
+                  ]}
+                  containerClassName="flex-nowrap items-baseline tracking-tight"
+                  initialDelay={0.3}
+                  radius={140}
+                  maxShiftX={7}
+                  maxShiftY={9}
+                  maxScale={0.07}
+                  maxRotate={2}
+                />
+              </div>
             </div>
           </h1>
 
@@ -158,7 +195,7 @@ const Hero: React.FC = () => {
             </span>
           </motion.div>
 
-          {/* Role Carousel & Description in balanced editorial layout */}
+          {/* Role Carousel & Description */}
           <div className="grid md:grid-cols-12 gap-8 items-start mb-12">
             {/* Left: Role carousel */}
             <motion.div
@@ -246,20 +283,60 @@ const Hero: React.FC = () => {
               ))}
             </div>
           </motion.div>
+
+          {/* Mobile / Tablet Scroll Indicator — in-flow as the natural closing element of the hero */}
+          <div className="flex justify-center mt-10 sm:mt-12 md:mt-14 lg:hidden">
+            <motion.button
+              aria-label="Scroll to next section"
+              onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+              className="flex flex-col items-center gap-1.5 text-text-muted hover:text-indigo-600 transition-colors cursor-pointer bg-transparent border-none py-1"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.1 }}
+              whileHover={{ y: 3 }}
+            >
+              <motion.span
+                className="section-label text-[10px] tracking-widest"
+                animate={{ y: [0, 4, 0] }}
+                transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity }}
+              >
+                Scroll
+              </motion.span>
+              <motion.div
+                animate={{ y: [0, 5, 0] }}
+                transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity, delay: 0.1 }}
+              >
+                <ArrowDown size={14} />
+              </motion.div>
+            </motion.button>
+          </div>
         </div>
       </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-text-muted"
+      {/* Desktop Scroll Indicator — preserved bottom-aligned layout */}
+      <motion.button
+        aria-label="Scroll to next section"
+        onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+        className="hidden lg:flex absolute left-1/2 bottom-8 -translate-x-1/2 flex-col items-center gap-1.5 text-text-muted hover:text-indigo-600 transition-colors cursor-pointer bg-transparent border-none z-10"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.1 }}
-        style={{ animation: 'bounce-arrow 2.2s ease-in-out infinite' }}
+        whileHover={{ y: 3 }}
       >
-        <span className="section-label text-[10px] tracking-widest">Scroll</span>
-        <ArrowDown size={14} />
-      </motion.div>
+        <motion.span
+          className="section-label text-[10px] tracking-widest"
+          animate={{ y: [0, 4, 0] }}
+          transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity }}
+        >
+          Scroll
+        </motion.span>
+        <motion.div
+          animate={{ y: [0, 5, 0] }}
+          transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity, delay: 0.1 }}
+        >
+          <ArrowDown size={14} />
+        </motion.div>
+      </motion.button>
     </section>
   );
 };
