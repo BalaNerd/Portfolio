@@ -119,7 +119,7 @@ const Hero: React.FC = () => {
             >
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="font-mono text-[11px] text-text-secondary font-semibold tracking-wider">
-                CHENNAI <span className="text-slate-300 mx-0.5">·</span> INDIA
+                KANYAKUMARI <span className="text-slate-300 mx-0.5">·</span> TAMIL NADU
               </span>
             </div>
           </motion.div>
@@ -147,9 +147,9 @@ const Hero: React.FC = () => {
               />
             </div>
 
-            {/* Mobile: intentional two-line composition */}
-            <div className="sm:hidden w-full leading-none space-y-0">
-              <div className="leading-none">
+            {/* Mobile: two-row stacked editorial layout */}
+            <div className="block sm:hidden leading-none space-y-1">
+              <div>
                 <VariableProximity
                   wordsConfig={[
                     { text: 'S.', className: 'text-text-primary' },
@@ -164,18 +164,19 @@ const Hero: React.FC = () => {
                   maxRotate={2}
                 />
               </div>
-              <div className="leading-none">
+              <div>
                 <VariableProximity
                   wordsConfig={[
                     { text: 'RAJU', className: 'gradient-text', gradient: true },
                   ]}
                   containerClassName="flex-nowrap items-baseline tracking-tight"
-                  initialDelay={0.3}
+                  initialDelay={0.25}
                   radius={140}
                   maxShiftX={7}
                   maxShiftY={9}
                   maxScale={0.07}
                   maxRotate={2}
+                  gradient={true}
                 />
               </div>
             </div>
@@ -221,7 +222,7 @@ const Hero: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.75 }}
             >
               Building scalable full-stack applications and data-driven systems.
-              Chennai, India — turning complex requirements into clean, high-performance digital products.
+              Kanyakumari, Tamil Nadu — turning complex requirements into clean, high-performance digital products.
             </motion.p>
           </div>
 

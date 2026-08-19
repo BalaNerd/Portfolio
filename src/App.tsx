@@ -1,5 +1,6 @@
 import React from 'react';
 import { LazyMotion, domAnimation } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -37,6 +38,7 @@ function App() {
           </main>
           <Footer />
         </div>
+        <Analytics />
       </div>
     </LazyMotion>
   );

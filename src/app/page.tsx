@@ -952,7 +952,7 @@ export default function Home() {
                           <MapPin size={20} className="mr-2" />
                           Location
                         </h3>
-                        <p className="text-gray-300">Chennai, India</p>
+                        <p className="text-gray-300">Kanyakumari, Tamil Nadu, India</p>
                       </div>
                     </div>
                   </motion.div>

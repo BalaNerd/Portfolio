@@ -29,8 +29,8 @@ const contactInfo = [
   {
     icon: MapPin,
     label: 'Location',
-    value: 'Chennai, India',
-    href: 'https://maps.app.goo.gl/xw1CNdUpqq44SCLF9',
+    value: 'Kanyakumari, Tamil Nadu, India',
+    href: 'https://maps.google.com/?q=Kanyakumari,Tamil+Nadu,India',
     ariaLabel: 'View Location on Map',
     color: '#7c3aed',
     bgColor: 'rgba(124, 58, 237, 0.08)',

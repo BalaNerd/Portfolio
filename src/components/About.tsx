@@ -97,7 +97,7 @@ const About: React.FC = () => {
               </div>
               <div>
                 <p className="text-text-primary font-display font-700 text-2xl mb-1" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-                  Chennai
+                  Kanyakumari
                 </p>
                 <p className="text-text-muted text-sm font-medium">Tamil Nadu, India</p>
               </div>
