@@ -290,7 +290,7 @@ const About: React.FC = () => {
                       <span className="section-label text-[10px] text-purple-600 font-bold tracking-widest uppercase">DEGREE</span>
                     </div>
                     <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                      CGPA 8.61
+                      CGPA 8.67
                     </span>
                   </div>
 

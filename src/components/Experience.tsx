@@ -49,7 +49,7 @@ const education: TimelineItem[] = [
     type: 'B.Tech Degree',
     location: 'Ramapuram, Tamil Nadu, India',
     period: 'Aug 2023 – Jun 2027',
-    duration: 'CGPA: 8.61',
+    duration: 'CGPA: 8.67',
     description: [
       'B.Tech curriculum focused on Big Data Analytics, machine learning, and scalable systems.',
       'Comprehensive study of data structures, algorithms, database management, and full-stack web engineering.',
