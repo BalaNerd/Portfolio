@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, ArrowUp } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './ui/Icons';
 import MagneticButton from './ui/MagneticButton';
+import TelemetryStrip from './TelemetryStrip';
 
 const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -21,6 +22,11 @@ const Footer: React.FC = () => {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
       <div className="container-main">
+        {/* Telemetry Strip in Footer */}
+        <div className="flex justify-center mb-8">
+          <TelemetryStrip variant="footer" />
+        </div>
+
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
 
           {/* Wordmark */}

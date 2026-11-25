@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { MapPin, Code2, Database, Globe, Zap, GraduationCap } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './ui/Icons';
+import { useTechHighlight } from '../context/TechHighlightContext';
 
 /* ─────────────────────────────────────────────────
    MINIMALIST TRANSLUCENT TAPE STRIP (w-8 h-5 -top-2.5)
@@ -21,8 +22,8 @@ const TapeStrip: React.FC<{ className?: string }> = ({ className = '' }) => (
 );
 
 /* ─────────────────────────────────────────────────
-   REALISTIC 3D CURLED WHITE STICKY NOTE COMPONENT
-   Crisp matte white paper + directional lighting + pseudo-element curl shadows
+   REALISTIC 3D PERSPECTIVE CURLED WHITE STICKY NOTE
+   Hover peel & straighten + cursor-tracked paper lighting + tactile press feedback
 ───────────────────────────────────────────────── */
 interface StickyNoteProps {
   children: React.ReactNode;
@@ -40,6 +41,46 @@ const StickyNote: React.FC<StickyNoteProps> = ({
   delay = 0,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const noteRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (reducedMotion || !noteRef.current) return;
+      const rect = noteRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      noteRef.current.style.setProperty('--x', `${Math.round(x)}px`);
+      noteRef.current.style.setProperty('--y', `${Math.round(y)}px`);
+    },
+    [reducedMotion]
+  );
+
+  const handleMouseEnter = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      setIsHovered(true);
+      if (!reducedMotion && noteRef.current) {
+        const rect = noteRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        noteRef.current.style.setProperty('--x', `${Math.round(x)}px`);
+        noteRef.current.style.setProperty('--y', `${Math.round(y)}px`);
+      }
+    },
+    [reducedMotion]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+  }, []);
 
   return (
     <motion.div
@@ -51,17 +92,20 @@ const StickyNote: React.FC<StickyNoteProps> = ({
         delay,
         ease: [0.16, 1, 0.3, 1],
       }}
-      className="w-full h-full"
+      className="w-full h-full transition-opacity duration-260 group-hover/about:opacity-[0.85] hover:!opacity-100"
     >
       <motion.div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        ref={noteRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        whileTap={reducedMotion ? undefined : { y: -1, scale: 0.995 }}
         animate={{
-          rotate: isHovered ? 0 : tilt,
-          y: isHovered ? -5 : 0,
+          rotate: isHovered && !reducedMotion ? 0 : tilt,
+          y: isHovered && !reducedMotion ? -4 : 0,
         }}
         transition={{
-          duration: 0.28,
+          duration: 0.26,
           ease: [0.16, 1, 0.3, 1],
         }}
         className={`curled-paper-note relative ${className}`}
@@ -69,9 +113,9 @@ const StickyNote: React.FC<StickyNoteProps> = ({
         {/* Minimalist frosted tape strip centered at top edge */}
         <TapeStrip />
 
-        {/* Paper card surface (relative z-10 over the ::before/::after curl drop shadows) */}
+        {/* ── WHITE MATTE PAPER SURFACE ── */}
         <div
-          className={`relative z-10 w-full h-full p-6 border border-slate-900/8 transition-shadow duration-280 bg-white ${
+          className={`relative z-10 w-full h-full p-6 border border-slate-900/8 transition-shadow duration-260 bg-white ${
             curlCorner === 'left'
               ? 'rounded-[4px] rounded-bl-[14px]'
               : curlCorner === 'right'
@@ -80,7 +124,7 @@ const StickyNote: React.FC<StickyNoteProps> = ({
           }`}
           style={{
             boxShadow: isHovered
-              ? '0 10px 24px -4px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04)'
+              ? '0 14px 28px -4px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.04)'
               : '0 4px 14px -3px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04)',
           }}
         >
@@ -89,8 +133,19 @@ const StickyNote: React.FC<StickyNoteProps> = ({
             className="absolute inset-0 pointer-events-none rounded-[3px]"
             style={{
               background:
-                'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.6) 60%, rgba(15,23,42,0.04) 100%)',
+                'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(248,250,252,0.65) 60%, rgba(15,23,42,0.035) 100%)',
             }}
+          />
+
+          {/* Cursor-Tracked Paper Lighting: low-opacity radial highlight using CSS variables --x, --y */}
+          <div
+            className="absolute inset-0 pointer-events-none transition-opacity duration-260 rounded-[3px]"
+            style={{
+              opacity: isHovered && !reducedMotion ? 1 : 0,
+              background:
+                'radial-gradient(320px circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.25) 50%, transparent 80%)',
+            }}
+            aria-hidden="true"
           />
 
           {/* Top subtle adhesive band shadow */}
@@ -131,7 +186,7 @@ const PortraitPhotoPrint: React.FC = () => {
   return (
     <motion.div
       ref={ref}
-      className="relative w-full"
+      className="relative w-full transition-opacity duration-260 group-hover/about:opacity-[0.85] hover:!opacity-100"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => {
@@ -146,9 +201,9 @@ const PortraitPhotoPrint: React.FC = () => {
       <motion.div
         animate={{
           rotate: hovered ? 0 : 0.4,
-          y: hovered ? -5 : 0,
+          y: hovered ? -4 : 0,
         }}
-        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
         className="curled-paper-note relative"
       >
         {/* Frosted masking tape strip pinning the photo print */}
@@ -156,7 +211,7 @@ const PortraitPhotoPrint: React.FC = () => {
 
         {/* Outer matte photo frame */}
         <div
-          className="relative z-10 rounded-[4px] rounded-br-[12px] border border-slate-900/10 p-2.5 bg-white w-full transition-shadow duration-280"
+          className="relative z-10 rounded-[4px] rounded-br-[12px] border border-slate-900/10 p-2.5 bg-white w-full transition-shadow duration-260"
           style={{
             boxShadow: hovered
               ? '0 14px 28px -6px rgba(15, 23, 42, 0.16), 0 3px 8px -2px rgba(15, 23, 42, 0.06)'
@@ -232,6 +287,8 @@ const PortraitPhotoPrint: React.FC = () => {
    ABOUT SECTION — White 3D Curled Sticky-Note Bento Layout
 ───────────────────────────────────────────────── */
 const About: React.FC = () => {
+  const { selectedTech, setSelectedTech } = useTechHighlight();
+
   const capabilities = [
     {
       icon: Code2,
@@ -291,8 +348,8 @@ const About: React.FC = () => {
           </div>
         </div>
 
-        {/* ── 2-COLUMN BENTO GRID (FLUSH EDGES, ZERO DEAD SPACE) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+        {/* ── 2-COLUMN BENTO GRID (FLUSH EDGES, SIBLING FOCUS CONTRAST) ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start group/about">
           {/* ── LEFT COLUMN (lg:col-span-4, sticky top-24): Portrait + Location Note ── */}
           <div className="lg:col-span-4 lg:sticky lg:top-24 flex flex-col gap-7">
             {/* Pinned Portrait Photo Print with Frosted Tape */}
@@ -477,16 +534,27 @@ const About: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Tech Pills: font-mono text-[11px]–[12px] font-medium tabular-nums text-slate-600 */}
+                {/* Tech Pills: Connected to TechHighlightContext */}
                 <div className="flex flex-wrap gap-1.5 pt-3.5 border-t border-slate-900/10">
-                  {['Next.js', 'Redis', 'WebSockets', 'TypeScript'].map((t) => (
-                    <span
-                      key={t}
-                      className="px-2.5 py-1 rounded-md border border-slate-900/10 bg-slate-900/[0.02] font-mono text-[11px] font-medium tabular-nums text-slate-600 hover:border-slate-900/20 hover:text-slate-900 transition-colors"
-                    >
-                      {t}
-                    </span>
-                  ))}
+                  {['Next.js', 'Redis', 'WebSockets', 'TypeScript'].map((t) => {
+                    const isSelected = selectedTech === t;
+                    return (
+                      <button
+                        key={t}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedTech(t);
+                        }}
+                        className={`px-2.5 py-1 rounded-md font-mono text-[11px] font-medium tabular-nums border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                            : 'border-slate-900/10 bg-slate-900/[0.02] text-slate-600 hover:border-slate-900/20 hover:text-slate-900'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
                 </div>
               </StickyNote>
             </div>

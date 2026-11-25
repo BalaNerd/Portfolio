@@ -11,6 +11,9 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import BackgroundMotion from './components/BackgroundMotion';
 import CustomCursor from './components/ui/CustomCursor';
+import BlueprintCanvas from './components/BlueprintCanvas';
+import ProjectInspectDrawer from './components/ProjectInspectDrawer';
+import { TechHighlightProvider } from './context/TechHighlightContext';
 
 /* ─────────────────────────────────────────────────
    TOP SCROLL-PROGRESS HAIRLINE (2px high-contrast)
@@ -32,36 +35,45 @@ const ScrollProgressHairline: React.FC = () => {
 
 function App() {
   return (
-    <LazyMotion features={domAnimation} strict>
-      <div
-        className="min-h-screen text-text-primary relative overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900"
-        style={{ backgroundColor: 'var(--aurora-bg)', color: 'var(--text-primary)' }}
-      >
-        {/* Top 2px scroll progress hairline */}
-        <ScrollProgressHairline />
+    <TechHighlightProvider>
+      <LazyMotion features={domAnimation} strict>
+        <div
+          className="min-h-screen text-text-primary relative overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900"
+          style={{ backgroundColor: 'var(--aurora-bg)', color: 'var(--text-primary)' }}
+        >
+          {/* Cursor-illuminated 24px architectural dot-grid canvas */}
+          <BlueprintCanvas />
 
-        {/* Custom cursor — desktop only, auto-disabled on touch */}
-        <CustomCursor />
+          {/* Top 2px scroll progress hairline */}
+          <ScrollProgressHairline />
 
-        {/* Aurora atmosphere — fixed, behind everything */}
-        <BackgroundMotion />
+          {/* Custom cursor — desktop only, auto-disabled on touch */}
+          <CustomCursor />
 
-        {/* Content — scrollable, above background */}
-        <div className="relative z-10">
-          <Navbar />
-          <main>
-            <Hero />
-            <About />
-            <Projects />
-            <Skills />
-            <Experience />
-            <Contact />
-          </main>
-          <Footer />
+          {/* Aurora atmosphere — fixed, behind everything */}
+          <BackgroundMotion />
+
+          {/* Content — scrollable, above background */}
+          <div className="relative z-10">
+            <Navbar />
+            <main>
+              <Hero />
+              <About />
+              <Projects />
+              <Skills />
+              <Experience />
+              <Contact />
+            </main>
+            <Footer />
+          </div>
+
+          {/* Slide-over deep architectural project drawer */}
+          <ProjectInspectDrawer />
+
+          <Analytics />
         </div>
-        <Analytics />
-      </div>
-    </LazyMotion>
+      </LazyMotion>
+    </TechHighlightProvider>
   );
 }
 

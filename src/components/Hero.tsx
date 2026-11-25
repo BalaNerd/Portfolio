@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUpRight, Mail } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './ui/Icons';
 import VariableProximity from './ui/VariableProximity';
 import MagneticButton from './ui/MagneticButton';
+import TelemetryStrip from './TelemetryStrip';
 
 const ROLES = ['Full-Stack Developer', 'Data Engineer', 'System Builder', 'Problem Solver'];
 
@@ -224,6 +225,11 @@ const Hero: React.FC = () => {
               Building scalable full-stack applications and data-driven systems.
               Turning complex requirements into clean, high-performance digital products.
             </motion.p>
+          </div>
+
+          {/* Live Build & Telemetry Status Strip */}
+          <div className="mb-8">
+            <TelemetryStrip />
           </div>
 
           {/* CTAs and Social Connections */}

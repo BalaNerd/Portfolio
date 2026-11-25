@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BlurReveal from './ui/BlurReveal';
+import { useTechHighlight } from '../context/TechHighlightContext';
 
 interface Skill {
   name: string;
@@ -27,7 +28,7 @@ const skills: Skill[] = [
   { name: 'PostgreSQL', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',color: '#336791', category: 'backend' },
   { name: 'MySQL',      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',          color: '#4479A1', category: 'backend' },
   // Data & Cloud
-  { name: 'AWS',        icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg', color: '#FF9900', category: 'data' },
+  { name: 'AWS',        icon: 'https://cdn.jsdelivr.net/npm/devicon@2.16.0/icons/amazonwebservices/amazonwebservices-original-wordmark.svg', color: '#FF9900', category: 'data' },
   { name: 'Pandas',     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg',        color: '#7c3aed', category: 'data' },
   { name: 'NumPy',      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg',          color: '#0284c7', category: 'data' },
   { name: 'C',          icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg',                  color: '#A8B9CC', category: 'data' },
@@ -46,10 +47,23 @@ const categories = [
   { id: 'tools',    label: 'Tools',     number: '04', color: '#d97706' },
 ];
 
+/* Verified project tech stacks for real-time matrix cross-filtering */
+const PROJECT_TECHS: string[][] = [
+  ['React', 'Tailwind CSS', 'Supabase', 'PostgreSQL', 'PWA'],
+  ['Next.js', 'TypeScript', 'Supabase', 'Recharts', 'Tailwind CSS'],
+  ['Next.js 16', 'TypeScript', 'Tailwind CSS', 'GitHub REST API', 'Vercel Analytics'],
+  ['React 18', 'Node.js', 'MongoDB', 'Express', 'JWT'],
+  ['Next.js', 'FastAPI', 'PostGIS', 'XGBoost', 'LangChain'],
+  ['Next.js 16', 'Convex', 'TypeScript', 'Framer Motion', 'Tailwind CSS'],
+];
+
 const SkillCard: React.FC<{ skill: Skill; index: number; catColor: string }> = ({ skill, index, catColor }) => {
   const [isHovered, setIsHovered] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const { selectedTech, setSelectedTech, setHoveredTech, isTechMatch } = useTechHighlight();
+  const isSelected = selectedTech ? isTechMatch([skill.name], selectedTech) : false;
+  const projectCount = PROJECT_TECHS.filter((techs) => isTechMatch(techs, skill.name)).length;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
@@ -59,12 +73,34 @@ const SkillCard: React.FC<{ skill: Skill; index: number; catColor: string }> = (
     setTilt({ x, y });
   };
 
+  const handleToggle = () => {
+    if (selectedTech === skill.name) {
+      setSelectedTech(null);
+    } else {
+      setSelectedTech(skill.name);
+      const projectsEl = document.getElementById('projects');
+      if (projectsEl) {
+        projectsEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <motion.div
       ref={ref}
-      className="relative flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-200/80 bg-white/80 cursor-pointer group shadow-sm"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); setTilt({ x: 0, y: 0 }); }}
+      onClick={handleToggle}
+      className={`relative flex flex-col items-center gap-3 p-4 rounded-2xl border cursor-pointer group shadow-sm transition-all ${
+        isSelected ? 'bg-indigo-50/70 ring-2 ring-indigo-500/40 border-indigo-500' : 'bg-white/80 border-slate-200/80'
+      }`}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        setHoveredTech(skill.name);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setHoveredTech(null);
+        setTilt({ x: 0, y: 0 });
+      }}
       onMouseMove={handleMouseMove}
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -73,12 +109,32 @@ const SkillCard: React.FC<{ skill: Skill; index: number; catColor: string }> = (
       animate={{
         rotateX: tilt.x,
         rotateY: tilt.y,
-        scale: isHovered ? 1.05 : 1,
-        borderColor: isHovered ? `${catColor}50` : 'rgba(15, 23, 42, 0.08)',
-        boxShadow: isHovered ? `0 10px 24px -4px ${catColor}20, 0 2px 6px rgba(0,0,0,0.03)` : '0 1px 3px rgba(0,0,0,0.02)',
+        scale: isHovered || isSelected ? 1.05 : 1,
+        borderColor: isSelected ? '#4f46e5' : isHovered ? `${catColor}50` : 'rgba(15, 23, 42, 0.08)',
+        boxShadow: isSelected
+          ? '0 10px 24px -4px rgba(79, 70, 229, 0.25), 0 2px 6px rgba(0,0,0,0.03)'
+          : isHovered
+          ? `0 10px 24px -4px ${catColor}20, 0 2px 6px rgba(0,0,0,0.03)`
+          : '0 1px 3px rgba(0,0,0,0.02)',
       }}
       style={{ transformStyle: 'preserve-3d', transition: 'box-shadow 0.25s, border-color 0.25s' }}
+      title={`Click to filter projects built with ${skill.name}`}
     >
+      {/* Used in X projects badge on hover */}
+      <AnimatePresence>
+        {isHovered && projectCount > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 4, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 2, scale: 0.9 }}
+            transition={{ duration: 0.15 }}
+            className="absolute -top-3 px-2 py-0.5 rounded-full bg-slate-900 text-white font-mono text-[9px] font-semibold shadow-xs whitespace-nowrap z-20 pointer-events-none"
+          >
+            Used in {projectCount} {projectCount === 1 ? 'project' : 'projects'}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.img
         src={skill.icon}
         alt={skill.name}
@@ -87,7 +143,13 @@ const SkillCard: React.FC<{ skill: Skill; index: number; catColor: string }> = (
         transition={{ duration: 0.2, ease: 'easeOut' }}
         loading="lazy"
         onError={(e) => {
-          (e.target as HTMLImageElement).style.display = 'none';
+          const target = e.target as HTMLImageElement;
+          const fallback = `${process.env.PUBLIC_URL || ''}/aws.svg`;
+          if (skill.name === 'AWS' && !target.src.includes('aws.svg')) {
+            target.src = fallback;
+          } else {
+            target.style.display = 'none';
+          }
         }}
       />
       <span
@@ -115,21 +177,49 @@ const SkillCard: React.FC<{ skill: Skill; index: number; catColor: string }> = (
 };
 
 const Skills: React.FC = () => {
+  const { selectedTech, setSelectedTech } = useTechHighlight();
+
   return (
     <section id="skills" className="relative py-28 md:py-36 overflow-hidden">
       <div className="section-divider mb-16" />
       <div className="container-main pt-0">
 
         {/* Section header */}
-        <BlurReveal delay={0} className="mb-16">
+        <BlurReveal delay={0} className="mb-12">
           <span className="section-label block mb-4 text-indigo-600">03 — Skills</span>
           <h2 className="section-title">
             Tools &amp; <span className="gradient-text">Technologies</span>
           </h2>
           <p className="text-text-secondary mt-4 max-w-xl font-normal" style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.7 }}>
-            A curated toolkit built through real projects. Each technology chosen for a specific purpose.
+            A curated toolkit built through real projects. Click any technology to cross-highlight projects built with it.
           </p>
         </BlurReveal>
+
+        {/* Filter indicator */}
+        <AnimatePresence>
+          {selectedTech && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-10 flex items-center justify-between p-3.5 px-4 rounded-xl border border-indigo-200/80 bg-indigo-50/70 text-xs shadow-2xs"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+                <span className="font-mono text-indigo-950">
+                  Highlighting projects matching: <strong className="font-semibold text-indigo-700">{selectedTech}</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedTech(null)}
+                className="font-mono text-[11px] underline text-indigo-700 hover:text-indigo-950 font-medium cursor-pointer"
+              >
+                Clear Filter ×
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Category rows */}
         <div className="space-y-12">

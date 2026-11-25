@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, MapPin, Send, CheckCircle2, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { Mail, MapPin, Send, CheckCircle2, AlertCircle, ArrowUpRight, Copy, Check } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './ui/Icons';
 import VariableProximity from './ui/VariableProximity';
 import MagneticButton from './ui/MagneticButton';
@@ -43,10 +43,77 @@ const socialLinks = [
   { icon: Mail,         label: 'Email',    href: 'mailto:balaraju1805@gmail.com',               color: '#4f46e5' },
 ];
 
+interface IntentPreset {
+  id: string;
+  label: string;
+  subject: string;
+  message: string;
+}
+
+const INTENT_PRESETS: IntentPreset[] = [
+  {
+    id: 'role',
+    label: 'Full-Stack / AI Role',
+    subject: 'Engineering Opportunity: Full-Stack / AI Role',
+    message:
+      'Hi Bala,\n\nI reviewed your portfolio and engineering work on DevMetrics and CanteenConnect. We have an opportunity on our team and would love to connect with you regarding your background and technical skills.\n\nBest regards,\n',
+  },
+  {
+    id: 'collab',
+    label: 'Project Collaboration',
+    subject: 'Project Collaboration & Engineering Discussion',
+    message:
+      'Hi Bala,\n\nI was impressed by your telemetry dashboards and real-time PWA architecture. I am building a project and would like to explore collaborating or exchanging technical insights.\n\nBest regards,\n',
+  },
+  {
+    id: 'inquiry',
+    label: 'General Inquiry',
+    subject: 'General Inquiry / Connecting via Portfolio',
+    message:
+      'Hi Bala,\n\nReaching out through your portfolio to connect and discuss your software engineering work.\n\nBest regards,\n',
+  },
+];
+
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedDraft, setCopiedDraft] = useState(false);
+
+  const handleCopyEmail = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText('balaraju1805@gmail.com');
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2000);
+  };
+
+  const handleSelectIntent = (preset: IntentPreset) => {
+    if (selectedIntent === preset.id) {
+      setSelectedIntent(null);
+    } else {
+      setSelectedIntent(preset.id);
+      setFormData((prev) => ({
+        ...prev,
+        subject: preset.subject,
+        message: preset.message,
+      }));
+    }
+  };
+
+  const dynamicMailto = `mailto:balaraju1805@gmail.com?subject=${encodeURIComponent(
+    formData.subject || 'Hello from Portfolio'
+  )}&body=${encodeURIComponent(formData.message || '')}`;
+
+  const handleCopyDraft = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const draftText = `Subject: ${formData.subject}\n\n${formData.message}`;
+    navigator.clipboard.writeText(draftText);
+    setCopiedDraft(true);
+    setTimeout(() => setCopiedDraft(false), 2000);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -192,7 +259,58 @@ const Contact: React.FC = () => {
                         <p className="text-[10px] text-text-muted section-label mb-0.5 font-bold">{item.label}</p>
                         <p className="text-text-primary text-sm font-semibold" style={{ fontFamily: 'var(--font-body)' }}>{item.value}</p>
                       </div>
-                      <ArrowUpRight size={15} className="ml-auto text-text-muted group-hover:text-indigo-600 transition-colors" />
+                      {item.label === 'Email' ? (
+                        <button
+                          type="button"
+                          onClick={handleCopyEmail}
+                          className="relative overflow-hidden ml-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-medium border transition-all cursor-pointer shadow-2xs z-10"
+                          style={{
+                            background: copiedEmail ? 'rgba(16, 185, 129, 0.1)' : 'rgba(15, 23, 42, 0.04)',
+                            borderColor: copiedEmail ? 'rgba(16, 185, 129, 0.3)' : 'rgba(15, 23, 42, 0.1)',
+                            color: copiedEmail ? '#059669' : '#475569',
+                          }}
+                          aria-label="Copy email address"
+                          title="Click to copy email address"
+                        >
+                          <AnimatePresence mode="wait" initial={false}>
+                            {copiedEmail ? (
+                              <motion.span
+                                key="copied"
+                                className="flex items-center gap-1"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.15 }}
+                              >
+                                <Check size={12} className="text-emerald-600" />
+                                <span>Copied to clipboard ✓</span>
+                              </motion.span>
+                            ) : (
+                              <motion.span
+                                key="copy"
+                                className="flex items-center gap-1"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.15 }}
+                              >
+                                <Copy size={12} />
+                                <span>Copy</span>
+                              </motion.span>
+                            )}
+                          </AnimatePresence>
+                          {copiedEmail && (
+                            <motion.div
+                              className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500"
+                              initial={{ width: '0%' }}
+                              animate={{ width: '100%' }}
+                              transition={{ duration: 2, ease: 'linear' }}
+                            />
+                          )}
+                        </button>
+                      ) : (
+                        <ArrowUpRight size={15} className="ml-auto text-text-muted group-hover:text-indigo-600 transition-colors" />
+                      )}
                     </motion.a>
                   );
                 })}
@@ -226,6 +344,35 @@ const Contact: React.FC = () => {
           {/* Right — contact form */}
           <BlurReveal delay={0.3} direction="right">
             <div className="p-7 rounded-2xl border border-slate-200/80 bg-white/85 shadow-sm">
+              {/* Quick Intent Presets Builder */}
+              <div className="mb-5 pb-5 border-b border-slate-200/70">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-mono text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+                    Quick Intent Presets
+                  </span>
+                  <span className="font-mono text-[9px] text-slate-400">Click to autofill draft</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {INTENT_PRESETS.map((preset) => {
+                    const isActive = selectedIntent === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => handleSelectIntent(preset)}
+                        className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-medium transition-all cursor-pointer border ${
+                          isActive
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs ring-2 ring-indigo-500/20'
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80 hover:border-slate-300'
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -332,6 +479,36 @@ const Contact: React.FC = () => {
                       )}
                     </AnimatePresence>
                   </MagneticButton>
+                </div>
+
+                {/* Secondary Quick Actions: Open in Mail Client or Copy Draft */}
+                <div className="flex items-center justify-between pt-1 text-[11.5px] font-mono text-slate-500">
+                  <a
+                    href={dynamicMailto}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:text-indigo-600 transition-colors"
+                  >
+                    <span>Open in Email App</span>
+                    <ArrowUpRight size={12} />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleCopyDraft}
+                    className="inline-flex items-center gap-1 hover:text-indigo-600 transition-colors cursor-pointer"
+                  >
+                    {copiedDraft ? (
+                      <>
+                        <Check size={12} className="text-emerald-600" />
+                        <span className="text-emerald-600 font-semibold">Draft Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={12} />
+                        <span>Copy Draft Message</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 {/* Status messages */}
