@@ -222,7 +222,7 @@ const Hero: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.75 }}
             >
               Building scalable full-stack applications and data-driven systems.
-              Kanyakumari, Tamil Nadu — turning complex requirements into clean, high-performance digital products.
+              Turning complex requirements into clean, high-performance digital products.
             </motion.p>
           </div>
 

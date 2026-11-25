@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import { GithubIcon } from './ui/Icons';
 import BlurReveal from './ui/BlurReveal';
@@ -15,7 +15,7 @@ interface FeaturedProject {
   description: string;
   tech: string[];
   github: string;
-  live?: string;          // omit if no verified deployment
+  live?: string;
   accentColor: string;
   stats: string;
   index: string;
@@ -28,7 +28,7 @@ interface CompactProject {
   description: string;
   tech: string[];
   github: string;
-  live?: string;          // omit if no verified deployment
+  live?: string;
   accentColor: string;
   index: string;
 }
@@ -60,78 +60,77 @@ const featuredProjects: FeaturedProject[] = [
     stats: 'Financial Analytics · Insights',
     index: '02',
   },
+  {
+    id: 3,
+    title: 'DevMetrics',
+    category: 'GitHub Repository & Vercel Deployment Intelligence Dashboard',
+    description:
+      'An engineering analytics web application that inspects, visualizes, and compares GitHub repositories and live Vercel deployments. Features dual Technical and Plain English reporting modes, interactive commit timeline scrubbing, punch-card activity matrices, side-by-side repository comparison, and Luxury Editorial typography.',
+    tech: ['Next.js 16', 'TypeScript', 'Tailwind CSS', 'GitHub REST API', 'Vercel Analytics'],
+    github: 'https://github.com/BalaNerd/devmetrics',
+    live: 'https://devmetrics-eta.vercel.app',
+    accentColor: '#0d9488',
+    stats: 'Repository Intel · Deployment Analytics',
+    index: '03',
+  },
 ];
 
 const compactProjects: CompactProject[] = [
   {
-    id: 3,
+    id: 4,
     title: 'Social Media Usage Analytics',
     category: 'Full-Stack Analytics Platform',
     description:
-      'Privacy-focused web app that helps users track social media usage time, analyze behavioral patterns, and receive personalized insights. Includes behavioral risk scoring (0–100), interactive dashboards, and JWT-authenticated REST API.',
-    tech: ['React 18', 'Vite', 'Node.js', 'Express', 'MongoDB', 'Recharts', 'JWT'],
+      'Privacy-focused analytics web app tracking digital habits, behavioral risk scoring (0–100), and interactive Recharts dashboards.',
+    tech: ['React 18', 'Node.js', 'MongoDB', 'Express', 'JWT'],
     github: 'https://github.com/BalaNerd/Social-Media-Usage-Analytics',
     accentColor: '#7c3aed',
-    index: '03',
-  },
-  {
-    id: 4,
-    title: 'Aegis Sentinel',
-    category: 'AI · Emergency Intelligence Platform',
-    description:
-      'Enterprise-grade global disaster monitoring system integrating real-time telemetry from USGS, NASA FIRMS, and Open-Meteo. Features GIS spatial analytics, AI risk scoring with Explainable AI (SHAP), RAG-powered FEMA guidelines, and sub-second alert delivery.',
-    tech: ['Next.js', 'FastAPI', 'PostgreSQL', 'PostGIS', 'XGBoost', 'LangChain', 'Redis', 'Docker'],
-    github: 'https://github.com/BalaNerd/aegis-sentinel',
-    accentColor: '#dc2626',
     index: '04',
   },
   {
     id: 5,
+    title: 'Aegis Sentinel',
+    category: 'AI · Emergency Intelligence Platform',
+    description:
+      'Global disaster intelligence system integrating USGS and NASA telemetry with AI risk scoring (SHAP) and sub-second alerts.',
+    tech: ['Next.js', 'FastAPI', 'PostGIS', 'XGBoost', 'LangChain'],
+    github: 'https://github.com/BalaNerd/aegis-sentinel',
+    accentColor: '#dc2626',
+    index: '05',
+  },
+  {
+    id: 6,
     title: 'City Pulse',
     category: 'Real-Time City Intelligence Dashboard',
     description:
-      'Full-stack dashboard that aggregates weather, AQI, events, and transport signals into a composite City Activity Score. Features animated circular gauge, 24-hour trend charts, heat map visualization, and a smart 15-minute caching layer via Convex.',
-    tech: ['Next.js 16', 'TypeScript', 'Convex', 'Framer Motion', 'Recharts', 'Tailwind CSS'],
+      'Real-time dashboard aggregating weather, AQI, and transit signals into a composite City Activity Score with Convex caching.',
+    tech: ['Next.js 16', 'Convex', 'TypeScript', 'Framer Motion', 'Tailwind CSS'],
     github: 'https://github.com/BalaNerd/City-pulse',
     accentColor: '#059669',
-    index: '05',
+    index: '06',
   },
 ];
 
 /* ─────────────────────────────────────────────
-   SPATIAL TILT CARD
+   STAGGERED VIEWPORT REVEAL
+   translateY(12px) -> 0, opacity: 0 -> 1, 350ms cubic-bezier(0.16, 1, 0.3, 1)
 ───────────────────────────────────────────── */
-const TiltCard: React.FC<{ children: React.ReactNode; className?: string; intensity?: number }> = ({
+const ProjectReveal: React.FC<{ children: React.ReactNode; index: number; className?: string }> = ({
   children,
+  index,
   className = '',
-  intensity = 3,
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-0.5, 0.5], [intensity, -intensity]);
-  const rotateY = useTransform(x, [-0.5, 0.5], [-intensity, intensity]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    x.set((e.clientX - rect.left) / rect.width - 0.5);
-    y.set((e.clientY - rect.top) / rect.height - 0.5);
-  }, [x, y]);
-
-  const handleMouseLeave = useCallback(() => {
-    x.set(0);
-    y.set(0);
-  }, [x, y]);
-
   return (
     <motion.div
-      ref={ref}
       className={className}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-      transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-20px' }}
+      transition={{
+        duration: 0.35,
+        delay: index * 0.06,
+        ease: [0.16, 1, 0.3, 1],
+      }}
     >
       {children}
     </motion.div>
@@ -139,354 +138,701 @@ const TiltCard: React.FC<{ children: React.ReactNode; className?: string; intens
 };
 
 /* ─────────────────────────────────────────────
-   FEATURED PROJECT CARD (CanteenConnect / SpendWise)
+   CURSOR-TRACKED BORDER SPOTLIGHT HOOK
 ───────────────────────────────────────────── */
-const ProjectCard: React.FC<{ project: FeaturedProject; delay?: number }> = ({ project, delay = 0 }) => {
+const useSpotlight = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    cardRef.current.style.setProperty('--mouse-x', `${x}px`);
+    cardRef.current.style.setProperty('--mouse-y', `${y}px`);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+
+  return { cardRef, isHovered, handleMouseMove, handleMouseEnter, handleMouseLeave };
+};
+
+/* ─────────────────────────────────────────────
+   DEVMETRICS PREVIEW FRAME WITH [TECHNICAL | PLAIN] TOGGLE
+───────────────────────────────────────────── */
+const DevMetricsInteractivePreview: React.FC = () => {
+  const [mode, setMode] = useState<'technical' | 'plain'>('technical');
 
   return (
-    <BlurReveal delay={delay} className="w-full">
-      <TiltCard
-        className="project-card overflow-hidden cursor-default border border-slate-200/80 bg-white/90 shadow-sm"
-        intensity={3}
-      >
-        <div
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          className="transition-colors duration-300"
-        >
-          <div className="grid md:grid-cols-12 gap-0">
-            {/* Visual Panel */}
-            <div
-              className="md:col-span-5 relative overflow-hidden min-h-[220px] md:min-h-[340px] flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100"
-              style={{
-                background: `linear-gradient(135deg, ${project.accentColor}12 0%, ${project.accentColor}04 100%)`,
-              }}
-            >
-              {/* Abstract grid */}
-              <div className="absolute inset-0 opacity-40 pointer-events-none" aria-hidden="true">
-                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <pattern id={`proj-grid-${project.id}`} width="32" height="32" patternUnits="userSpaceOnUse">
-                      <path d="M 32 0 L 0 0 0 32" fill="none" stroke={project.accentColor} strokeWidth="0.75" opacity="0.25"/>
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill={`url(#proj-grid-${project.id})`} />
-                </svg>
-              </div>
-
-              {/* Radial glow */}
-              <motion.div
-                className="absolute w-56 h-56 rounded-full pointer-events-none"
-                style={{ background: `radial-gradient(circle, ${project.accentColor}28 0%, transparent 70%)` }}
-                animate={{ scale: isHovered ? 1.35 : 1, opacity: isHovered ? 1 : 0.65 }}
-                transition={{ duration: 0.5 }}
-              />
-
-              {/* Large Index Number */}
-              <span
-                className="relative z-10 font-display pointer-events-none select-none"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 800,
-                  fontSize: 'clamp(5.5rem, 10vw, 8.5rem)',
-                  color: `${project.accentColor}28`,
-                  letterSpacing: '-0.05em',
-                  lineHeight: 1,
-                }}
-              >
-                {project.index}
-              </span>
-
-              {/* Hover stats label */}
-              <AnimatePresence>
-                {isHovered && (
-                  <motion.div
-                    className="absolute bottom-4 left-4 right-4"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <span
-                      className="font-mono text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-lg"
-                      style={{
-                        background: `${project.accentColor}18`,
-                        color: project.accentColor,
-                        border: `1px solid ${project.accentColor}30`,
-                      }}
-                    >
-                      {project.stats}
-                    </span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Content Panel */}
-            <div className="md:col-span-7 p-7 sm:p-10 flex flex-col justify-between relative z-20">
-              <div>
-                {/* Category & Quick Links */}
-                <div className="flex items-center justify-between mb-5">
-                  <span
-                    className="section-label text-[11px] font-bold px-3 py-1 rounded-md border tracking-wider uppercase"
-                    style={{
-                      color: project.accentColor,
-                      borderColor: `${project.accentColor}30`,
-                      background: `${project.accentColor}0a`,
-                    }}
-                  >
-                    {project.index} · {project.category}
-                  </span>
-
-                  {/* Quick Links */}
-                  <div className="flex items-center gap-2">
-                    <motion.a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${project.title} Source Code on GitHub`}
-                      className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-text-secondary hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-xs"
-                      whileHover={{ scale: 1.1, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <GithubIcon size={16} />
-                    </motion.a>
-                    {project.live && (
-                      <motion.a
-                        href={project.live}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`View ${project.title} Live Demo`}
-                        className="w-9 h-9 flex items-center justify-center rounded-xl border border-indigo-200/80 bg-indigo-50/50 text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100 transition-all shadow-xs"
-                        whileHover={{ scale: 1.1, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ArrowUpRight size={16} />
-                      </motion.a>
-                    )}
-                  </div>
-                </div>
-
-                {/* Project Title */}
-                <h3
-                  className="text-text-primary mb-4 font-bold"
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontWeight: 700,
-                    fontSize: 'clamp(1.6rem, 2.8vw, 2.2rem)',
-                    letterSpacing: '-0.025em',
-                  }}
-                >
-                  {project.title}
-                </h3>
-
-                {/* Description */}
-                <p
-                  className="text-text-secondary text-sm leading-relaxed mb-6 font-normal"
-                  style={{ fontFamily: 'var(--font-body)', lineHeight: 1.78 }}
-                >
-                  {project.description}
-                </p>
-
-                {/* Technology Pills */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {project.tech.map((t) => (
-                    <span key={t} className="tech-pill">{t}</span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-6 border-t border-slate-100 flex flex-wrap items-center gap-3">
-                <motion.a
-                  href={project.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`View Source Code for ${project.title}`}
-                  className="btn-outline inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-text-primary hover:text-indigo-600 shadow-xs"
-                  whileHover={{ scale: 1.03, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <GithubIcon size={15} /> Source Code <ArrowUpRight size={14} />
-                </motion.a>
-
-                {project.live && (
-                  <motion.a
-                    href={project.live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`View Live Demo for ${project.title}`}
-                    className="btn-primary inline-flex items-center gap-2 py-2.5 px-5 text-sm font-bold shadow-sm"
-                    style={project.id === 2 ? { background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' } : undefined}
-                    whileHover={{ scale: 1.03, y: -1 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Live Demo <ExternalLink size={14} />
-                  </motion.a>
-                )}
-              </div>
-            </div>
-          </div>
+    <div className="relative z-10 w-full h-full flex flex-col justify-between">
+      {/* Top control bar: Monospace indicator + [Technical | Plain] toggle */}
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+          <span className="font-mono text-[11px] font-bold tracking-wider text-slate-600 uppercase">
+            03 · TELEMETRY
+          </span>
         </div>
-      </TiltCard>
-    </BlurReveal>
+
+        {/* Interactive Mode pill toggle */}
+        <div className="inline-flex items-center p-0.5 rounded-lg bg-slate-900/5 border border-slate-200/90 shadow-2xs">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMode('technical');
+            }}
+            className={`px-2.5 py-1 text-[10px] font-mono font-semibold rounded-md transition-all cursor-pointer active:scale-[0.98] ${
+              mode === 'technical'
+                ? 'bg-white text-teal-800 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+            aria-label="Switch to Technical mode metric preview"
+          >
+            Technical
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMode('plain');
+            }}
+            className={`px-2.5 py-1 text-[10px] font-mono font-semibold rounded-md transition-all cursor-pointer active:scale-[0.98] ${
+              mode === 'plain'
+                ? 'bg-white text-teal-800 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+            aria-label="Switch to Plain English mode metric preview"
+          >
+            Plain
+          </button>
+        </div>
+      </div>
+
+      {/* Metric Readout Display with smooth swap */}
+      <AnimatePresence mode="wait">
+        {mode === 'technical' ? (
+          <motion.div
+            key="technical"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex-1 flex flex-col justify-center space-y-2.5 my-2"
+          >
+            {/* Row 1: Velocity & Bus Factor */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+                <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                  Commit Velocity
+                </span>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="font-mono text-sm font-bold text-slate-900">42.8</span>
+                  <span className="font-mono text-[10px] text-emerald-600 font-semibold">+18%</span>
+                </div>
+                <span className="block font-mono text-[9px] text-slate-500">commits / wk</span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+                <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                  Pareto Bus Factor
+                </span>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="font-mono text-sm font-bold text-slate-900">0.32</span>
+                  <span className="font-mono text-[10px] text-teal-600 font-semibold">Gini</span>
+                </div>
+                <span className="block font-mono text-[9px] text-slate-500">Low Risk · Resilient</span>
+              </div>
+            </div>
+
+            {/* Row 2: Vercel Edge TTFB & Core Web Vitals */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+                <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                  Edge Response
+                </span>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="font-mono text-sm font-bold text-slate-900">38ms</span>
+                  <span className="font-mono text-[10px] text-teal-600 font-semibold">TTFB</span>
+                </div>
+                <span className="block font-mono text-[9px] text-slate-500">99.8% Cache Hit</span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+                <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                  Web Vitals
+                </span>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="font-mono text-sm font-bold text-slate-900">0.6s</span>
+                  <span className="font-mono text-[10px] text-emerald-600 font-semibold">LCP</span>
+                </div>
+                <span className="block font-mono text-[9px] text-slate-500">CLS 0.00 · FID 12ms</span>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="plain"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex-1 flex flex-col justify-center space-y-2 my-2"
+          >
+            {/* Verdict Card */}
+            <div className="p-3 rounded-xl bg-white/90 border border-teal-200/80 shadow-2xs">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-teal-700">
+                  Executive Verdict
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-slate-900 leading-snug">
+                Ready for Visitors & Recruiters
+              </p>
+              <p className="text-[11px] text-slate-600 mt-0.5 leading-normal">
+                High shipping velocity with distributed maintainer resilience and zero dependency blocks.
+              </p>
+            </div>
+
+            {/* Plain points */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+                <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                  Visitor Experience
+                </span>
+                <span className="block text-xs font-bold text-slate-900 mt-0.5">Sub-Second Load</span>
+                <span className="block text-[10px] text-slate-500">Instant on mobile</span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+                <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                  Shipping Rhythm
+                </span>
+                <span className="block text-xs font-bold text-slate-900 mt-0.5">Active Daily</span>
+                <span className="block text-[10px] text-slate-500">Regular release tags</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bottom telemetry badge */}
+      <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+        <span className="font-mono text-[10px] font-semibold text-teal-700 tracking-wider">
+          DUAL-MODE REPORTING
+        </span>
+        <span className="font-mono text-[10px] text-slate-400">
+          {mode === 'technical' ? 'Technical View' : 'Plain English View'}
+        </span>
+      </div>
+    </div>
   );
 };
 
 /* ─────────────────────────────────────────────
-   COMPACT PROJECT CARD (Additional Projects)
+   CANTEENCONNECT PREVIEW FRAME (01)
 ───────────────────────────────────────────── */
-const CompactProjectCard: React.FC<{ project: CompactProject; delay?: number }> = ({ project, delay = 0 }) => {
-  const [isHovered, setIsHovered] = useState(false);
+const CanteenConnectPreview: React.FC = () => (
+  <div className="relative z-10 w-full h-full flex flex-col justify-between">
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+        <span className="font-mono text-[11px] font-bold tracking-wider text-slate-600 uppercase">
+          01 · LIVE QUEUE
+        </span>
+      </div>
+      <span className="font-mono text-[10px] font-semibold text-indigo-600 px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200/60">
+        PWA Online
+      </span>
+    </div>
+
+    <div className="flex-1 flex flex-col justify-center space-y-2.5 my-2">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+          <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+            Wait Reduction
+          </span>
+          <div className="flex items-baseline gap-1 mt-0.5">
+            <span className="font-mono text-sm font-bold text-slate-900">-64%</span>
+            <span className="font-mono text-[10px] text-emerald-600 font-semibold">Faster</span>
+          </div>
+          <span className="block font-mono text-[9px] text-slate-500">Queue optimization</span>
+        </div>
+
+        <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+          <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+            Active Orders
+          </span>
+          <div className="flex items-baseline gap-1 mt-0.5">
+            <span className="font-mono text-sm font-bold text-slate-900">18</span>
+            <span className="font-mono text-[10px] text-indigo-600 font-semibold">Live</span>
+          </div>
+          <span className="block font-mono text-[9px] text-slate-500">Real-time sync</span>
+        </div>
+      </div>
+
+      <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+        <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+          Architecture
+        </span>
+        <span className="block text-xs font-bold text-slate-900 mt-0.5">
+          Supabase PostgreSQL + PWA Cache
+        </span>
+        <span className="block text-[10px] text-slate-500">Offline resilient transaction flow</span>
+      </div>
+    </div>
+
+    <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+      <span className="font-mono text-[10px] font-semibold text-indigo-700 tracking-wider">
+        QUEUE MANAGEMENT · PWA
+      </span>
+      <span className="font-mono text-[10px] text-slate-400">Realtime Dispatch</span>
+    </div>
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   SPENDWISE PREVIEW FRAME (02)
+───────────────────────────────────────────── */
+const SpendWisePreview: React.FC = () => (
+  <div className="relative z-10 w-full h-full flex flex-col justify-between">
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+        <span className="font-mono text-[11px] font-bold tracking-wider text-slate-600 uppercase">
+          02 · WEALTH INTEL
+        </span>
+      </div>
+      <span className="font-mono text-[10px] font-semibold text-sky-600 px-2 py-0.5 rounded-md bg-sky-50 border border-sky-200/60">
+        Recharts Live
+      </span>
+    </div>
+
+    <div className="flex-1 flex flex-col justify-center space-y-2.5 my-2">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+          <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+            Monthly Burn
+          </span>
+          <div className="flex items-baseline gap-1 mt-0.5">
+            <span className="font-mono text-sm font-bold text-slate-900">$2,410</span>
+            <span className="font-mono text-[10px] text-emerald-600 font-semibold">-12.4%</span>
+          </div>
+          <span className="block font-mono text-[9px] text-slate-500">Categorized automated</span>
+        </div>
+
+        <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+          <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+            Savings Target
+          </span>
+          <div className="flex items-baseline gap-1 mt-0.5">
+            <span className="font-mono text-sm font-bold text-slate-900">88.5%</span>
+            <span className="font-mono text-[10px] text-sky-600 font-semibold">On Track</span>
+          </div>
+          <span className="block font-mono text-[9px] text-slate-500">Dynamic projection</span>
+        </div>
+      </div>
+
+      <div className="p-2.5 rounded-xl bg-white/85 border border-slate-200/80 shadow-2xs">
+        <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">
+          Analytics Engine
+        </span>
+        <span className="block text-xs font-bold text-slate-900 mt-0.5">
+          Next.js App Router + Supabase DB
+        </span>
+        <span className="block text-[10px] text-slate-500">Interactive financial charts & telemetry</span>
+      </div>
+    </div>
+
+    <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+      <span className="font-mono text-[10px] font-semibold text-sky-700 tracking-wider">
+        FINANCIAL ANALYTICS · INSIGHTS
+      </span>
+      <span className="font-mono text-[10px] text-slate-400">SaaS Dashboard</span>
+    </div>
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   MAJOR FEATURED PROJECT CARD (01, 02, 03)
+───────────────────────────────────────────── */
+const ProjectCard: React.FC<{ project: FeaturedProject; index: number }> = ({ project, index }) => {
+  const { cardRef, isHovered, handleMouseMove, handleMouseEnter, handleMouseLeave } = useSpotlight();
 
   return (
-    <BlurReveal delay={delay} className="w-full h-full">
-      <motion.div
-        className="compact-project-card h-full flex flex-col"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        animate={{
-          y: isHovered ? -4 : 0,
-          boxShadow: isHovered
-            ? `0 12px 32px -8px ${project.accentColor}22, 0 4px 12px rgba(0,0,0,0.03)`
-            : '0 2px 8px -2px rgba(15,23,42,0.04), 0 1px 3px rgba(0,0,0,0.02)',
-          borderColor: isHovered ? `${project.accentColor}45` : 'rgba(15, 23, 42, 0.08)',
-        }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+    <ProjectReveal index={index} className="w-full">
+      <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={`group project-card relative overflow-hidden rounded-2xl md:rounded-3xl border transition-colors duration-200 ${
+          isHovered ? 'border-slate-300 shadow-sm' : 'border-slate-200/80 shadow-2xs'
+        } bg-white/95 cursor-default`}
       >
-        {/* Accent top bar */}
-        <motion.div
-          className="h-0.5 w-full rounded-t-2xl"
-          style={{ background: `linear-gradient(90deg, ${project.accentColor}60, ${project.accentColor}20)` }}
-          animate={{ opacity: isHovered ? 1 : 0.4 }}
-          transition={{ duration: 0.25 }}
+        {/* 1px Cursor-Tracked Radial Border Spotlight */}
+        <div
+          className="pointer-events-none absolute -inset-px rounded-[inherit] transition-opacity duration-300"
+          style={{
+            opacity: isHovered ? 1 : 0,
+            background: `radial-gradient(450px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), ${project.accentColor}45, transparent 65%)`,
+            mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            maskComposite: 'exclude',
+            WebkitMaskComposite: 'xor',
+            padding: '1px',
+            zIndex: 25,
+          }}
+          aria-hidden="true"
         />
 
-        <div className="p-6 flex flex-col flex-1">
-          {/* Index & quick github link */}
-          <div className="flex items-center justify-between mb-4">
-            <motion.span
-              className="font-mono font-bold tracking-widest"
+        <div className="grid md:grid-cols-12 gap-0">
+          {/* Visual Preview Panel */}
+          <div
+            className="md:col-span-5 relative overflow-hidden min-h-[260px] md:min-h-[380px] p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-100"
+            style={{
+              background: `linear-gradient(135deg, ${project.accentColor}0f 0%, ${project.accentColor}03 100%)`,
+            }}
+          >
+            {/* Abstract SVG Grid */}
+            <div className="absolute inset-0 opacity-35 pointer-events-none" aria-hidden="true">
+              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id={`proj-grid-${project.id}`} width="32" height="32" patternUnits="userSpaceOnUse">
+                    <path
+                      d="M 32 0 L 0 0 0 32"
+                      fill="none"
+                      stroke={project.accentColor}
+                      strokeWidth="0.75"
+                      opacity="0.25"
+                    />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill={`url(#proj-grid-${project.id})`} />
+              </svg>
+            </div>
+
+            {/* Radial glow */}
+            <div
+              className="absolute w-64 h-64 rounded-full pointer-events-none transition-transform duration-500 ease-out"
               style={{
-                fontSize: '0.7rem',
-                color: project.accentColor,
-                letterSpacing: '0.2em',
+                background: `radial-gradient(circle, ${project.accentColor}25 0%, transparent 70%)`,
+                transform: isHovered ? 'scale(1.25)' : 'scale(1)',
+                opacity: isHovered ? 1 : 0.6,
               }}
-              animate={{ x: isHovered ? 2 : 0 }}
-              transition={{ duration: 0.2 }}
+            />
+
+            {/* Large Index Number Watermark */}
+            <span
+              className="absolute right-4 bottom-2 font-display pointer-events-none select-none transition-opacity duration-300 tabular-nums"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 800,
+                fontSize: 'clamp(5rem, 8vw, 7.5rem)',
+                color: `${project.accentColor}14`,
+                letterSpacing: '-0.05em',
+                lineHeight: 1,
+              }}
             >
               {project.index}
-            </motion.span>
+            </span>
 
-            <motion.a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${project.title} on GitHub`}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white/80 text-text-muted hover:text-indigo-600 hover:border-indigo-300 transition-all"
-              whileHover={{ scale: 1.12, y: -1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={(e) => e.stopPropagation()}
+            {/* Preview Frame with smooth scale(1.02) on hover */}
+            <div
+              className="relative z-10 w-full h-full flex flex-col justify-between transition-transform duration-500 ease-out"
+              style={{ transform: isHovered ? 'scale(1.02)' : 'scale(1)' }}
             >
-              <GithubIcon size={14} />
-            </motion.a>
+              {project.id === 3 ? (
+                <DevMetricsInteractivePreview />
+              ) : project.id === 2 ? (
+                <SpendWisePreview />
+              ) : (
+                <CanteenConnectPreview />
+              )}
+            </div>
           </div>
 
-          {/* Category */}
-          <p className="section-label text-[10px] text-text-muted mb-2 tracking-wider">{project.category}</p>
+          {/* Content Panel */}
+          <div className="md:col-span-7 p-7 sm:p-10 flex flex-col justify-between relative z-20">
+            <div>
+              {/* Category & Quick Links */}
+              <div className="flex items-start sm:items-center justify-between gap-3 mb-5">
+                <span
+                  className="section-label text-[11px] font-bold px-3 py-1 rounded-md border tracking-wider uppercase leading-snug tabular-nums"
+                  style={{
+                    color: project.accentColor,
+                    borderColor: `${project.accentColor}30`,
+                    background: `${project.accentColor}0a`,
+                  }}
+                >
+                  {project.index} · {project.category}
+                </span>
+
+                {/* Quick Links with diagonal arrow micro-interaction */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${project.title} Source Code on GitHub`}
+                    className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-text-secondary hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-2xs active:scale-[0.98]"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <GithubIcon size={16} />
+                  </a>
+                  {project.live && (
+                    <a
+                      href={project.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`View ${project.title} Live Demo`}
+                      className="w-9 h-9 flex items-center justify-center rounded-xl border border-indigo-200/80 bg-indigo-50/50 text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100 transition-all shadow-2xs active:scale-[0.98]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ArrowUpRight
+                        size={16}
+                        className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Project Title */}
+              <h3
+                className="text-text-primary mb-4 font-bold"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 700,
+                  fontSize: 'clamp(1.6rem, 2.8vw, 2.2rem)',
+                  letterSpacing: '-0.025em',
+                }}
+              >
+                {project.title}
+              </h3>
+
+              {/* Description */}
+              <p
+                className="text-text-secondary text-sm leading-relaxed mb-6 font-normal"
+                style={{ fontFamily: 'var(--font-body)', lineHeight: 1.78 }}
+              >
+                {project.description}
+              </p>
+
+              {/* Technology Pills */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {project.tech.map((t) => (
+                  <span key={t} className="tech-pill">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons with diagonal arrow hover */}
+            <div className="pt-6 border-t border-slate-100 flex flex-wrap items-center gap-3">
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View Source Code for ${project.title}`}
+                className="btn-outline inline-flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-text-primary hover:text-indigo-600 shadow-2xs group/btn active:scale-[0.98] transition-all"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <GithubIcon size={15} /> Source Code
+                <ArrowUpRight
+                  size={14}
+                  className="transition-transform duration-200 ease-out group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5"
+                />
+              </a>
+
+              {project.live && (
+                <a
+                  href={project.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`View Live Demo for ${project.title}`}
+                  className="btn-primary inline-flex items-center gap-2 py-2.5 px-5 text-sm font-bold shadow-xs group/btn active:scale-[0.98] transition-all"
+                  style={
+                    project.id === 2
+                      ? { background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' }
+                      : project.id === 3
+                      ? { background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)' }
+                      : undefined
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Live Demo
+                  <ExternalLink
+                    size={14}
+                    className="transition-transform duration-200 ease-out group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5"
+                  />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </ProjectReveal>
+  );
+};
+
+/* ─────────────────────────────────────────────
+   MINOR COMPACT PROJECT CARD (04, 05, 06)
+   Dense, text-focused, no preview screenshots
+───────────────────────────────────────────── */
+const CompactProjectCard: React.FC<{ project: CompactProject; index: number }> = ({ project, index }) => {
+  const { cardRef, isHovered, handleMouseMove, handleMouseEnter, handleMouseLeave } = useSpotlight();
+
+  return (
+    <ProjectReveal index={index} className="w-full h-full">
+      <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={`group relative h-full flex flex-col justify-between p-6 rounded-2xl bg-white/95 border transition-all duration-200 ${
+          isHovered ? 'border-slate-300 shadow-sm' : 'border-slate-200/80 shadow-2xs'
+        } overflow-hidden cursor-default`}
+      >
+        {/* 1px Cursor-Tracked Radial Border Spotlight */}
+        <div
+          className="pointer-events-none absolute -inset-px rounded-[inherit] transition-opacity duration-300"
+          style={{
+            opacity: isHovered ? 1 : 0,
+            background: `radial-gradient(320px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), ${project.accentColor}40, transparent 65%)`,
+            mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            maskComposite: 'exclude',
+            WebkitMaskComposite: 'xor',
+            padding: '1px',
+            zIndex: 25,
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Accent top line highlight */}
+        <div
+          className="absolute top-0 left-0 right-0 h-0.5 transition-opacity duration-300"
+          style={{
+            background: `linear-gradient(90deg, ${project.accentColor}80, ${project.accentColor}20)`,
+            opacity: isHovered ? 1 : 0.4,
+          }}
+        />
+
+        <div>
+          {/* Header: Monospace Index + Action Links */}
+          <div className="flex items-center justify-between mb-3">
+            <span
+              className="font-mono text-xs font-bold tracking-widest transition-colors duration-200 tabular-nums"
+              style={{ color: isHovered ? project.accentColor : '#94a3b8' }}
+            >
+              {project.index}
+            </span>
+
+            {/* Icon links */}
+            <div className="flex items-center gap-1.5">
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${project.title} on GitHub`}
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white/90 text-slate-500 hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-2xs active:scale-[0.98]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <GithubIcon size={14} />
+              </a>
+              {project.live && (
+                <a
+                  href={project.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${project.title} Live Demo`}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-indigo-200/80 bg-indigo-50/50 text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100 transition-all shadow-2xs active:scale-[0.98]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ArrowUpRight
+                    size={14}
+                    className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
+                </a>
+              )}
+            </div>
+          </div>
 
           {/* Title */}
-          <motion.h3
-            className="font-bold text-text-primary mb-3"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              fontSize: 'clamp(1.05rem, 1.5vw, 1.25rem)',
-              letterSpacing: '-0.015em',
-              lineHeight: 1.25,
-            }}
-            animate={{ x: isHovered ? 2 : 0 }}
-            transition={{ duration: 0.25, delay: 0.02 }}
+          <h3
+            className="font-bold text-text-primary text-base mb-2 tracking-tight transition-colors duration-200"
+            style={{ fontFamily: 'var(--font-display)' }}
           >
             {project.title}
-          </motion.h3>
+          </h3>
 
-          {/* Description */}
+          {/* Concise 1-2 line summary */}
           <p
-            className="text-text-secondary text-xs leading-relaxed mb-4 flex-1"
-            style={{ fontFamily: 'var(--font-body)', lineHeight: 1.72 }}
+            className="text-text-secondary text-xs leading-relaxed mb-4 line-clamp-2"
+            style={{ fontFamily: 'var(--font-body)' }}
           >
             {project.description}
           </p>
+        </div>
 
-          {/* Tech tags */}
-          <div className="flex flex-wrap gap-1.5 mb-5">
-            {project.tech.slice(0, 5).map((t) => (
+        {/* Footer: Top 3 Tech Tags & Source link with diagonal arrow */}
+        <div className="pt-4 border-t border-slate-100/90 flex items-center justify-between gap-2 mt-auto">
+          <div className="flex flex-wrap gap-1.5">
+            {project.tech.slice(0, 3).map((t) => (
               <span
                 key={t}
-                className="font-mono text-[9.5px] font-semibold tracking-wide px-2 py-0.5 rounded-full"
+                className="font-mono text-[9.5px] font-semibold tracking-wide px-2 py-0.5 rounded-md"
                 style={{
-                  background: `${project.accentColor}0d`,
+                  background: `${project.accentColor}0e`,
                   color: project.accentColor,
-                  border: `1px solid ${project.accentColor}22`,
+                  border: `1px solid ${project.accentColor}25`,
                 }}
               >
                 {t}
               </span>
             ))}
-            {project.tech.length > 5 && (
-              <span className="font-mono text-[9.5px] font-semibold tracking-wide px-2 py-0.5 rounded-full bg-slate-100 text-text-muted border border-slate-200">
-                +{project.tech.length - 5}
-              </span>
-            )}
           </div>
 
-          {/* CTA */}
-          <div className="mt-auto">
-            <motion.a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`View source code for ${project.title}`}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
-              style={{
-                fontFamily: 'var(--font-display)',
-                color: project.accentColor,
-                letterSpacing: '0.01em',
-              }}
-              whileHover={{ x: 3 }}
-              transition={{ duration: 0.2 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              Source Code <ArrowUpRight size={12} />
-            </motion.a>
-          </div>
+          <a
+            href={project.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`View source code for ${project.title}`}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold transition-colors active:scale-[0.98]"
+            style={{
+              fontFamily: 'var(--font-display)',
+              color: project.accentColor,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span>Code</span>
+            <ArrowUpRight
+              size={12}
+              className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            />
+          </a>
         </div>
-      </motion.div>
-    </BlurReveal>
+      </div>
+    </ProjectReveal>
   );
 };
 
 /* ─────────────────────────────────────────────
-   SECTION DIVIDER
+   SECTION DIVIDER BRIDGE
 ───────────────────────────────────────────── */
 const SectionBridge: React.FC = () => (
-  <BlurReveal delay={0.2} className="py-12 md:py-16">
+  <BlurReveal delay={0.15} className="py-12 md:py-16">
     <div className="flex items-center gap-6">
       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
       <div className="flex items-center gap-3">
-        <span
-          className="section-label text-[10px] tracking-[0.25em] text-text-muted"
-        >
-          MORE WORK
-        </span>
-        <span className="w-1 h-1 rounded-full bg-indigo-400/60" />
-        <span className="section-label text-[10px] tracking-[0.2em] text-text-muted">03–05</span>
+        <span className="section-label text-[10px] tracking-[0.25em] text-text-muted">MORE WORK</span>
+        <span className="w-1 h-1 rounded-full bg-slate-300" />
+        <span className="font-mono text-[10px] tracking-[0.2em] text-text-muted tabular-nums">04–06</span>
       </div>
       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
     </div>
@@ -501,49 +847,70 @@ const Projects: React.FC = () => {
     <section id="projects" className="relative py-28 md:py-36 overflow-hidden">
       <div className="section-divider mb-16" />
       <div className="container-main pt-0">
-
-        {/* ── Section header ── */}
-        <BlurReveal delay={0} className="mb-16">
-          <span className="section-label block mb-4 text-indigo-600">02 — Work</span>
-          <h2 className="section-title">
-            Selected <span className="gradient-text">Work</span>
-          </h2>
+        {/* Section header with baseline mask slide */}
+        <div className="mb-16">
+          <div className="overflow-hidden mb-3">
+            <motion.span
+              className="section-label block text-indigo-600 font-mono tracking-widest uppercase text-xs font-bold tabular-nums"
+              initial={{ y: '100%' }}
+              whileInView={{ y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            >
+              02 — Work
+            </motion.span>
+          </div>
+          <div className="overflow-hidden">
+            <motion.h2
+              className="section-title"
+              initial={{ y: '100%' }}
+              whileInView={{ y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: 0.45, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Selected <span className="gradient-text">Work</span>
+            </motion.h2>
+          </div>
           <p
             className="text-text-secondary mt-4 max-w-xl font-normal"
             style={{ fontFamily: 'var(--font-body)', fontSize: '1.05rem', lineHeight: 1.7 }}
           >
             Full-stack and data engineering projects built with real-world constraints — performance, clean architecture, and user-first design.
           </p>
-        </BlurReveal>
+        </div>
 
-        {/* ── SELECTED WORK — Featured large cards ── */}
+        {/* Major Projects: Positions 01, 02, 03 */}
         <div className="space-y-8 mb-4">
           {featuredProjects.map((project, i) => (
-            <ProjectCard key={project.id} project={project} delay={0.1 + i * 0.1} />
+            <ProjectCard key={project.id} project={project} index={i} />
           ))}
         </div>
 
-        {/* ── Bridge / Divider to additional projects ── */}
+        {/* Bridge Divider */}
         <SectionBridge />
 
-        {/* ── ADDITIONAL PROJECTS — Compact editorial grid ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
+        {/* Minor Projects: Positions 04, 05, 06 in 3-column compact grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
           {compactProjects.map((project, i) => (
-            <CompactProjectCard key={project.id} project={project} delay={0.05 + i * 0.08} />
+            <CompactProjectCard key={project.id} project={project} index={i} />
           ))}
         </div>
 
-        {/* ── GitHub CTA ── */}
-        <BlurReveal delay={0.3} className="flex justify-center">
+        {/* GitHub CTA */}
+        <BlurReveal delay={0.25} className="flex justify-center">
           <motion.a
             href="https://github.com/BalaNerd"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-outline inline-flex items-center gap-2"
+            className="btn-outline inline-flex items-center gap-2 group/all"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <GithubIcon size={16} /> View all repositories on GitHub <ArrowUpRight size={14} />
+            <GithubIcon size={16} /> View all repositories on GitHub
+            <ArrowUpRight
+              size={14}
+              className="transition-transform duration-200 ease-out group-hover/all:translate-x-0.5 group-hover/all:-translate-y-0.5"
+            />
           </motion.a>
         </BlurReveal>
       </div>
